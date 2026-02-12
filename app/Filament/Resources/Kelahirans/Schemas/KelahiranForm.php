@@ -7,7 +7,7 @@ namespace App\Filament\Resources\Kelahirans\Schemas;
 use App\Enums\HubunganPelapor;
 use App\Enums\JabatanAparat;
 use App\Enums\JenisKelamin;
-use App\Helpers\FilamentHelper;
+use App\Helpers\DesaFieldHelper;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -37,8 +37,8 @@ class KelahiranForm
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->default(fn () => FilamentHelper::getDefaultDesaId())
-                            ->disabled(fn () => FilamentHelper::shouldDisableDesaField())
+                            ->default(fn () => DesaFieldHelper::getDefaultDesaId())
+                            ->disabled(fn () => DesaFieldHelper::shouldDisableDesaField())
                             ->dehydrated()
                             ->helperText('Desa tempat kelahiran didaftarkan.')
                             ->columnSpanFull()

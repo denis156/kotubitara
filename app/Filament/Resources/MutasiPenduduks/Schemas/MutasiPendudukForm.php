@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\MutasiPenduduks\Schemas;
 
 use App\Enums\JenisMutasi;
-use App\Helpers\FilamentHelper;
+use App\Helpers\DesaFieldHelper;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -43,8 +43,8 @@ class MutasiPendudukForm
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->default(fn () => FilamentHelper::getDefaultDesaId())
-                            ->disabled(fn () => FilamentHelper::shouldDisableDesaField())
+                            ->default(fn () => DesaFieldHelper::getDefaultDesaId())
+                            ->disabled(fn () => DesaFieldHelper::shouldDisableDesaField())
                             ->dehydrated()
                             ->helperText('Desa tempat mutasi dicatat.')
                             ->columnSpanFull()

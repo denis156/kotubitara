@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Desas\Schemas;
 
+use App\Helpers\KecamatanFieldHelper;
 use App\Models\Desa;
 use App\Models\Kecamatan;
 use App\Services\ApiWilayahService;
@@ -37,21 +38,10 @@ class DesaForm
                             ->preload()
                             ->afterStateUpdated(fn (callable $set) => $set('nama_desa', null))
                             ->live()
-                            ->disabled(fn () => ! Auth::user()?->isSuperAdmin())
-                            ->dehydrated(fn () => Auth::user()?->isSuperAdmin())
-                            ->hint(fn () => ! Auth::user()?->isSuperAdmin() ? 'Otomatis' : null)
-                            ->default(function () {
-                                $user = Auth::user();
-
-                                // Jika bukan Super Admin, ambil kecamatan dari desa yang dikelola
-                                if (! $user?->isSuperAdmin()) {
-                                    $firstDesa = $user->desas()->where('slug', '!=', 'semua-desa')->first();
-
-                                    return $firstDesa?->kecamatan_id;
-                                }
-
-                                return null;
-                            })
+                            ->default(fn () => KecamatanFieldHelper::getDefaultKecamatanId())
+                            ->disabled(fn () => KecamatanFieldHelper::shouldDisableKecamatanField())
+                            ->dehydrated(fn () => KecamatanFieldHelper::shouldDehydrateKecamatanField())
+                            ->hint(fn () => KecamatanFieldHelper::getKecamatanFieldHint())
                             ->helperText('Pilih kecamatan tempat desa berada.')
                             ->validationMessages([
                                 'required' => 'Kecamatan wajib dipilih.',

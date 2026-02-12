@@ -7,7 +7,7 @@ namespace App\Helpers;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
 
-class FilamentHelper
+class DesaFieldHelper
 {
     /**
      * Get the default desa_id based on current tenant.
@@ -39,10 +39,19 @@ class FilamentHelper
     /**
      * Check if desa_id field should be disabled.
      * Disabled if user is Petugas Desa (always locked to their desa).
-     * Enabled for Petugas Kecamatan (can choose any desa).
+     * Enabled for Super Admin and Petugas Kecamatan (can choose any desa).
      */
     public static function shouldDisableDesaField(): bool
     {
         return Auth::user()?->isPetugasDesa() ?? false;
+    }
+
+    /**
+     * Get hint text for desa field based on user role.
+     * Returns 'Otomatis' for Petugas Desa, null for others.
+     */
+    public static function getDesaFieldHint(): ?string
+    {
+        return Auth::user()?->isPetugasDesa() ? 'Otomatis' : null;
     }
 }

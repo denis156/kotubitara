@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Penduduks\Schemas;
 
 use App\Enums\Agama;
-use App\Enums\JenisKelamin;
-use Filament\Schemas\Schema;
-use App\Enums\Kewarganegaraan;
 use App\Enums\HubunganKeluarga;
+use App\Enums\JenisKelamin;
+use App\Enums\Kewarganegaraan;
 use App\Enums\StatusPerkawinan;
-use App\Helpers\FilamentHelper;
+use App\Helpers\DesaFieldHelper;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\DatePicker;
+use Filament\Schemas\Schema;
 
 class PendudukForm
 {
@@ -55,8 +55,8 @@ class PendudukForm
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->default(fn () => FilamentHelper::getDefaultDesaId())
-                            ->disabled(fn () => FilamentHelper::shouldDisableDesaField())
+                            ->default(fn () => DesaFieldHelper::getDefaultDesaId())
+                            ->disabled(fn () => DesaFieldHelper::shouldDisableDesaField())
                             ->dehydrated()
                             ->helperText('Pilih desa tempat penduduk terdaftar.')
                             ->columnSpanFull()
