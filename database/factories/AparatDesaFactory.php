@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Enums\JabatanAparat;
+use App\Enums\JabatanAparatDesa;
 use App\Models\Desa;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,9 +20,9 @@ class AparatDesaFactory extends Factory
      */
     public function definition(): array
     {
-        $jabatan = fake()->randomElement(JabatanAparat::cases());
-        $namaDusun = $jabatan === JabatanAparat::KEPALA_DUSUN
-            ? 'Dusun ' . fake()->randomElement(['I', 'II', 'III', 'IV', 'V'])
+        $jabatan = fake()->randomElement(JabatanAparatDesa::cases());
+        $namaDusun = $jabatan === JabatanAparatDesa::KEPALA_DUSUN
+            ? 'Dusun '.fake()->randomElement(['I', 'II', 'III', 'IV', 'V'])
             : null;
 
         return [
