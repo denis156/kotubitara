@@ -48,8 +48,8 @@ class ViewKematian extends Page
 
         $tempPath = storage_path('app/temp-'.uniqid().'.pdf');
 
-        // Load relasi yang diperlukan
-        $this->record->load(['penduduk', 'desa', 'kepalaDesa']);
+        // Load relasi yang diperlukan termasuk kecamatan dari desa
+        $this->record->load(['penduduk', 'desa.kecamatan', 'kepalaDesa']);
 
         Pdf::view('pdfs.kematian', [
             'record' => $this->record,
@@ -76,5 +76,8 @@ class ViewKematian extends Page
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
+
+        // Eager load relasi untuk view
+        $this->record->load(['penduduk', 'desa.kecamatan', 'kepalaDesa']);
     }
 }

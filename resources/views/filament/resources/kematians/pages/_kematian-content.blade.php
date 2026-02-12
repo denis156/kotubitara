@@ -9,8 +9,8 @@
 
             {{-- Kop Tengah --}}
             <div class="grow text-center">
-                <h1 class="text-xl font-bold uppercase">Pemerintah {{ $record->desa->nama_kabupaten ?? 'Kabupaten Konawe' }}</h1>
-                <h2 class="text-lg font-bold uppercase">Kecamatan {{ $record->desa->nama_kecamatan ?? '' }}</h2>
+                <h1 class="text-xl font-bold uppercase">Pemerintah {{ $record->desa->kecamatan->nama_kabupaten ?? 'Kabupaten Konawe' }}</h1>
+                <h2 class="text-lg font-bold uppercase">Kecamatan {{ $record->desa->kecamatan->nama_kecamatan ?? '' }}</h2>
                 <h2 class="text-lg font-bold uppercase">Desa {{ $record->desa->nama_desa ?? '' }}</h2>
                 <p class="mt-2 text-sm">{{ $record->desa->alamat ?? '' }}</p>
                 @if($record->desa->telepon || $record->desa->email)
@@ -43,7 +43,7 @@
 
     {{-- ISI SURAT --}}
     <div class="mb-4 text-justify" style="font-size: 13px; line-height: 1.4;">
-        <p class="mb-3">Yang bertanda tangan di bawah ini, Kepala Desa {{ $record->desa->nama_desa ?? '' }}, Kecamatan {{ $record->desa->nama_kecamatan ?? '' }}, {{ $record->desa->nama_kabupaten ?? 'Kabupaten Konawe' }}, menerangkan bahwa:</p>
+        <p class="mb-3">Yang bertanda tangan di bawah ini, Kepala Desa {{ $record->desa->nama_desa ?? '' }}, Kecamatan {{ $record->desa->kecamatan->nama_kecamatan ?? '' }}, {{ $record->desa->kecamatan->nama_kabupaten ?? 'Kabupaten Konawe' }}, menerangkan bahwa:</p>
 
         <table class="mb-3 w-full">
             <tr>
