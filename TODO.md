@@ -75,26 +75,50 @@
 ## 📊 Data Demografi (Events)
 
 ### C. Kelahiran
-- [ ] Model Kelahiran (soft delete)
-  - Data bayi (nama, jenis kelamin, tempat/tanggal lahir)
+- ✅ Model Kelahiran (soft delete)
+  - Data bayi (nama, NIK, jenis kelamin, tempat/tanggal/waktu lahir, berat/panjang)
   - `ayah_id` & `ibu_id` (foreignId -> penduduks)
   - `desa_id` (foreignId -> desas)
-  - `akte_kelahiran` (string, nullable)
-- [ ] Resource Kelahiran (Filament)
-- [ ] Policy Kelahiran
-- [ ] Seeder Kelahiran
+  - Data pelapor (nama, NIK, hubungan, alamat, telepon)
+  - TTD digital pelapor (SignaturePad & file upload)
+  - `kepala_desa_id` (foreignId -> aparat_desas)
+  - `no_surat_kelahiran` (auto-generate: SP/LHR/YYYY/MM/XXXXX)
+  - `tanggal_surat` (date)
+  - Foto surat RS/Bidan (file upload)
+- ✅ Resource Kelahiran (Filament)
+  - Form: sections (Identitas Bayi, Waktu & Tempat, Orang Tua, Pelapor, TTD & Dokumen, Nomor Surat)
+  - Table: columns (nama bayi, NIK, jenis kelamin, tanggal lahir, ayah, ibu, no surat, desa)
+  - Preview & PDF generation (A4 format)
+- ✅ Policy Kelahiran (sama pattern dengan Penduduk/KK)
+- ✅ Observer Kelahiran (auto-generate nomor surat, file cleanup)
+- ✅ Factory & Seeder Kelahiran
+- ✅ Helper: SuratHelper untuk generate nomor surat
+- ✅ View: Preview surat dengan responsive scaling (JS)
 
 ### D. Kematian
-- [ ] Model Kematian (soft delete)
+- ✅ Model Kematian (soft delete)
   - `penduduk_id` (foreignId -> penduduks)
   - `desa_id` (foreignId -> desas)
   - `tanggal_meninggal` (date)
+  - `waktu_meninggal` (time)
   - `tempat_meninggal` (string)
-  - `penyebab` (text, nullable)
-  - `akte_kematian` (string, nullable)
-- [ ] Resource Kematian (Filament)
-- [ ] Policy Kematian
-- [ ] Seeder Kematian
+  - `sebab_kematian` (string)
+  - `tempat_pemakaman` (string)
+  - `tanggal_pemakaman` (date)
+  - Data pelapor (nama, NIK, hubungan, alamat, telepon)
+  - TTD digital pelapor (SignaturePad & file upload)
+  - `kepala_desa_id` (foreignId -> aparat_desas)
+  - `no_surat_kematian` (auto-generate: SK/KMT/YYYY/MM/XXXXX)
+  - `tanggal_surat` (date)
+  - Foto surat dokter/RS (file upload)
+- ✅ Resource Kematian (Filament)
+  - Form: sections (Informasi Kematian, Pelapor, TTD & Dokumen, Dokumen & Keterangan)
+  - Table: columns (nama lengkap, NIK, tanggal meninggal, tempat, sebab, no surat, desa)
+  - Preview & PDF generation (A4 format)
+- ✅ Policy Kematian (sama pattern dengan Penduduk/KK)
+- ✅ Observer Kematian (auto-generate nomor surat, file cleanup)
+- ✅ Factory & Seeder Kematian
+- ✅ View: Preview surat dengan responsive scaling (JS)
 
 ### E. Mutasi Penduduk (Optional)
 - [ ] Model Pindah Datang (soft delete)
@@ -105,11 +129,71 @@
 
 ## 🔮 Fase Berikutnya (Future)
 
-### F. Pelayanan Surat
-- [ ] Surat Keterangan Domisili
-- [ ] Surat Keterangan Tidak Mampu (SKTM)
-- [ ] Surat Pengantar KTP/KK
-- [ ] Template surat (PDF generation)
+### F. Pelayanan Surat (Prioritas berdasarkan riset)
+
+#### Phase 1 - Most Important (Paling Sering Diurus)
+- [ ] **Surat Keterangan Domisili (SKD)**
+  - Model: data penduduk, alamat lengkap, RT/RW, keperluan
+  - Untuk: KTP, KK, NPWP, daftar sekolah, melamar kerja
+  - Auto-generate nomor: SK/DOM/YYYY/MM/XXXXX
+
+- [ ] **Surat Keterangan Usaha (SKU)**
+  - Model: data penduduk, jenis usaha, nama usaha, alamat usaha, modal, karyawan
+  - Untuk: NPWP, pinjaman bank, izin usaha, tender
+  - Auto-generate nomor: SK/USH/YYYY/MM/XXXXX
+
+- [ ] **Surat Pengantar SKCK**
+  - Model: data penduduk, keperluan SKCK, kelakuan baik
+  - Untuk: Melamar kerja, keperluan hukum, administrasi
+  - Auto-generate nomor: SP/SKCK/YYYY/MM/XXXXX
+
+#### Phase 2 - Important
+- [ ] **Surat Keterangan Tidak Mampu (SKTM)**
+  - Model: data kepala keluarga, jumlah tanggungan, penghasilan, keperluan
+  - Untuk: Beasiswa, bantuan sosial, rumah sakit, pengobatan
+  - Auto-generate nomor: SK/TM/YYYY/MM/XXXXX
+
+- [ ] **Surat Keterangan Belum Menikah**
+  - Model: data penduduk, status perkawinan, orang tua
+  - Untuk: Persiapan menikah, administrasi KUA
+  - Auto-generate nomor: SK/BM/YYYY/MM/XXXXX
+
+#### Phase 3 - Needed
+- [ ] **Surat Pengantar Pindah**
+  - Model: data kepala keluarga, anggota keluarga, alamat tujuan, alasan pindah
+  - Untuk: Mutasi KK, pindah domisili antar desa/kota
+  - Auto-generate nomor: SP/PND/YYYY/MM/XXXXX
+
+- [ ] **Surat Keterangan Kehilangan**
+  - Model: data penduduk, barang hilang, kronologi, tempat/tanggal kejadian
+  - Untuk: Laporan polisi, klaim asuransi, penggantian dokumen
+  - Auto-generate nomor: SK/HL/YYYY/MM/XXXXX
+
+#### Phase 4 - Additional
+- [ ] **Surat Keterangan Penghasilan**
+  - Model: data penduduk, pekerjaan, nominal penghasilan, keperluan
+  - Untuk: Kredit, KPR, beasiswa, subsidi
+  - Auto-generate nomor: SK/PGH/YYYY/MM/XXXXX
+
+- [ ] **Surat Keterangan Ahli Waris**
+  - Model: data pewaris (meninggal), data ahli waris (multiple), hubungan keluarga
+  - Untuk: Warisan tanah, klaim asuransi, pencairan dana
+  - Auto-generate nomor: SK/AW/YYYY/MM/XXXXX
+
+- [ ] **Surat Keterangan Janda/Duda**
+  - Model: data penduduk, data pasangan (meninggal/cerai), tanggal cerai/meninggal
+  - Untuk: Menikah lagi, administrasi, bantuan sosial
+  - Auto-generate nomor: SK/JD/YYYY/MM/XXXXX
+
+#### Technical Notes
+- Semua surat menggunakan pattern yang sama:
+  - TTD digital (SignaturePad)
+  - File upload pendukung
+  - Auto-generate nomor surat dengan SuratHelper
+  - Preview & PDF generation (A4)
+  - Observer untuk file cleanup & nomor surat
+  - Policy dengan scope desa untuk petugas desa
+  - Factory & Seeder untuk testing
 
 ### G. Pengaduan & Aspirasi
 - [ ] Model Pengaduan
