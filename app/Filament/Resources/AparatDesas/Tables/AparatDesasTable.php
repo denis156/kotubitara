@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\AparatDesas\Tables;
 
-use App\Enums\JabatanAparat;
+use App\Enums\JabatanAparatDesa;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -86,7 +86,7 @@ class AparatDesasTable
             ->filters([
                 SelectFilter::make('jabatan')
                     ->label('Jabatan')
-                    ->options(JabatanAparat::class)
+                    ->options(JabatanAparatDesa::class)
                     ->native(false)
                     ->indicator('Jabatan'),
 

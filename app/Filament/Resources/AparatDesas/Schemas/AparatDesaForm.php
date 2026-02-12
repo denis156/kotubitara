@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\AparatDesas\Schemas;
 
-use App\Enums\JabatanAparat;
+use App\Enums\JabatanAparatDesa;
 use App\Helpers\DesaFieldHelper;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -67,7 +67,7 @@ class AparatDesaForm
 
                         Select::make('jabatan')
                             ->label('Jabatan')
-                            ->options(JabatanAparat::class)
+                            ->options(JabatanAparatDesa::class)
                             ->required()
                             ->native(false)
                             ->live()
@@ -79,8 +79,8 @@ class AparatDesaForm
                         TextInput::make('nama_dusun')
                             ->label('Nama Dusun')
                             ->maxLength(255)
-                            ->visible(fn (Get $get): bool => $get('jabatan') === JabatanAparat::KEPALA_DUSUN)
-                            ->required(fn (Get $get): bool => $get('jabatan') === JabatanAparat::KEPALA_DUSUN)
+                            ->visible(fn (Get $get): bool => $get('jabatan') === JabatanAparatDesa::KEPALA_DUSUN)
+                            ->required(fn (Get $get): bool => $get('jabatan') === JabatanAparatDesa::KEPALA_DUSUN)
                             ->helperText('Nama dusun untuk Kepala Dusun.')
                             ->validationMessages([
                                 'required' => 'Nama dusun wajib diisi untuk Kepala Dusun.',

@@ -6,7 +6,7 @@ namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 
-enum JabatanAparat: string implements HasLabel
+enum JabatanAparatDesa: string implements HasLabel
 {
     case KEPALA_DESA = 'kepala-desa';
     case SEKRETARIS_DESA = 'sekretaris-desa';

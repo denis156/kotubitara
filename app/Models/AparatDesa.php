@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\JabatanAparat;
-use App\Models\Desa;
+use App\Enums\JabatanAparatDesa;
 use App\Observers\AparatDesaObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +17,7 @@ class AparatDesa extends Model
 {
     /** @use HasFactory<\Database\Factories\AparatDesaFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     protected $fillable = [
@@ -40,7 +40,7 @@ class AparatDesa extends Model
     protected function casts(): array
     {
         return [
-            'jabatan' => JabatanAparat::class,
+            'jabatan' => JabatanAparatDesa::class,
             'tanggal_mulai_jabatan' => 'date',
             'tanggal_selesai_jabatan' => 'date',
         ];
