@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Pages\Tenancy;
 
 use App\Models\Desa;
+use App\Models\Kecamatan;
 use App\Services\ApiWilayahService;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -23,7 +24,9 @@ class RegisterDesa extends RegisterTenant
 
     public static function canView(): bool
     {
-        return Auth::user()?->isPetugasKecamatan() ?? false;
+        $user = Auth::user();
+
+        return $user?->isSuperAdmin() || $user?->isPetugasKecamatan() ?? false;
     }
 
     public function form(Schema $schema): Schema
@@ -61,6 +64,7 @@ class RegisterDesa extends RegisterTenant
                                 return $apiWilayah->getRegencies($province['id'])->pluck('name', 'name')->toArray();
                             }
                         }
+
                         return [];
                     })
                     ->default('KABUPATEN KONAWE')
@@ -93,6 +97,7 @@ class RegisterDesa extends RegisterTenant
                                 }
                             }
                         }
+
                         return [];
                     })
                     ->default('WONGGEDUKU BARAT')
@@ -138,6 +143,7 @@ class RegisterDesa extends RegisterTenant
                                 }
                             }
                         }
+
                         return [];
                     })
                     ->helperText('Pilih desa. Hanya menampilkan desa yang belum terdaftar')
@@ -171,21 +177,29 @@ class RegisterDesa extends RegisterTenant
 
     protected function handleRegistration(array $data): Desa
     {
-        // Prepare data untuk create desa
-        // Semua kode wilayah akan otomatis terisi oleh Observer berdasarkan nama wilayah
-        $desaData = [
-            'nama_provinsi' => $data['nama_provinsi'],
-            'nama_kabupaten' => $data['nama_kabupaten'],
-            'nama_kecamatan' => $data['nama_kecamatan'],
+        // Step 1: Cek apakah kecamatan sudah ada, jika belum create
+        $kecamatan = Kecamatan::firstOrCreate(
+            ['nama_kecamatan' => $data['nama_kecamatan']],
+            [
+                'nama_provinsi' => $data['nama_provinsi'],
+                'nama_kabupaten' => $data['nama_kabupaten'],
+                'nama_kecamatan' => $data['nama_kecamatan'],
+                // Kode provinsi, kabupaten, kecamatan akan auto-fill oleh KecamatanObserver
+            ]
+        );
+
+        // Step 2: Create desa dengan kecamatan_id
+        $desa = Desa::create([
+            'kecamatan_id' => $kecamatan->id,
             'nama_desa' => $data['nama_desa'],
             'alamat' => $data['alamat'] ?? null,
             'telepon' => $data['telepon'] ?? null,
             'email' => $data['email'] ?? null,
-        ];
+            // slug dan kode_desa akan auto-fill oleh DesaObserver
+        ]);
 
-        $desa = Desa::create($desaData);
-
-        $desa->users()->attach(Auth::user());
+        // Step 3: Attach desa to user - SUDAH OTOMATIS di DesaObserver::created()
+        // Tidak perlu attach manual di sini
 
         return $desa;
     }

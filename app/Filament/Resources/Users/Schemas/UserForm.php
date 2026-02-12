@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserForm
@@ -99,10 +100,24 @@ class UserForm
 
                         Select::make('role')
                             ->label('Peran Pengguna')
-                            ->options(UserRole::class)
+                            ->options(function () {
+                                $user = Auth::user();
+
+                                // Super Admin bisa pilih semua role
+                                if ($user?->isSuperAdmin()) {
+                                    return UserRole::class;
+                                }
+
+                                // Petugas Kecamatan hanya bisa pilih Petugas Kecamatan & Petugas Desa
+                                // TIDAK BISA pilih Super Admin
+                                return [
+                                    UserRole::PETUGAS_KECAMATAN->value => UserRole::PETUGAS_KECAMATAN->getLabel(),
+                                    UserRole::PETUGAS_DESA->value => UserRole::PETUGAS_DESA->getLabel(),
+                                ];
+                            })
                             ->required()
                             ->native(false)
-                            ->helperText('Pilih peran pengguna (Petugas Kecamatan/Desa).')
+                            ->helperText('Pilih peran pengguna sesuai tingkat akses.')
                             ->columnSpanFull()
                             ->validationMessages([
                                 'required' => 'Peran pengguna wajib dipilih.',

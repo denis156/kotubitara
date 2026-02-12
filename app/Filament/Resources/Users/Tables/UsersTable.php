@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Users\Tables;
 
 use App\Enums\UserRole;
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
-use Filament\Support\Enums\Size;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
-use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class UsersTable
 {
@@ -29,7 +30,7 @@ class UsersTable
                     ->label('Foto')
                     ->circular()
                     ->disk('public')
-                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&color=FFFFFF&background=000000'),
+                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name='.urlencode($record->name).'&color=FFFFFF&background=000000'),
 
                 TextColumn::make('name')
                     ->label('Nama')
@@ -82,7 +83,20 @@ class UsersTable
             ->filters([
                 SelectFilter::make('role')
                     ->label('Peran Pengguna')
-                    ->options(UserRole::class)
+                    ->options(function () {
+                        $user = Auth::user();
+
+                        // Super Admin bisa filter semua role
+                        if ($user?->isSuperAdmin()) {
+                            return UserRole::class;
+                        }
+
+                        // Petugas Kecamatan hanya bisa filter Petugas Kecamatan & Petugas Desa
+                        return [
+                            UserRole::PETUGAS_KECAMATAN->value => UserRole::PETUGAS_KECAMATAN->getLabel(),
+                            UserRole::PETUGAS_DESA->value => UserRole::PETUGAS_DESA->getLabel(),
+                        ];
+                    })
                     ->native(false)
                     ->indicator('Peran'),
 

@@ -40,6 +40,18 @@ class DesaForm
                             ->disabled(fn () => ! Auth::user()?->isSuperAdmin())
                             ->dehydrated(fn () => Auth::user()?->isSuperAdmin())
                             ->hint(fn () => ! Auth::user()?->isSuperAdmin() ? 'Otomatis' : null)
+                            ->default(function () {
+                                $user = Auth::user();
+
+                                // Jika bukan Super Admin, ambil kecamatan dari desa yang dikelola
+                                if (! $user?->isSuperAdmin()) {
+                                    $firstDesa = $user->desas()->where('slug', '!=', 'semua-desa')->first();
+
+                                    return $firstDesa?->kecamatan_id;
+                                }
+
+                                return null;
+                            })
                             ->helperText('Pilih kecamatan tempat desa berada.')
                             ->validationMessages([
                                 'required' => 'Kecamatan wajib dipilih.',
