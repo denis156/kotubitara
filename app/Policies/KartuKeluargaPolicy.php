@@ -23,9 +23,9 @@ class KartuKeluargaPolicy
      */
     public function view(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        // Petugas kecamatan bisa lihat semua kartu keluarga
+        // Super Admin dan Petugas kecamatan bisa lihat semua kartu keluarga
         // Petugas desa hanya bisa lihat kartu keluarga di desa mereka
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($kartuKeluarga->desa_id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($kartuKeluarga->desa_id)->exists();
     }
 
     /**
@@ -42,9 +42,9 @@ class KartuKeluargaPolicy
      */
     public function update(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        // Petugas kecamatan bisa update semua kartu keluarga
+        // Super Admin dan Petugas kecamatan bisa update semua kartu keluarga
         // Petugas desa hanya bisa update kartu keluarga di desa mereka
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($kartuKeluarga->desa_id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($kartuKeluarga->desa_id)->exists();
     }
 
     /**
@@ -52,9 +52,9 @@ class KartuKeluargaPolicy
      */
     public function delete(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        // Petugas kecamatan bisa delete semua kartu keluarga
+        // Super Admin dan Petugas kecamatan bisa delete semua kartu keluarga
         // Petugas desa hanya bisa delete kartu keluarga di desa mereka
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($kartuKeluarga->desa_id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($kartuKeluarga->desa_id)->exists();
     }
 
     /**
@@ -63,7 +63,7 @@ class KartuKeluargaPolicy
     public function restore(User $user, KartuKeluarga $kartuKeluarga): bool
     {
         // Sama seperti update
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($kartuKeluarga->desa_id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($kartuKeluarga->desa_id)->exists();
     }
 
     /**
@@ -71,7 +71,7 @@ class KartuKeluargaPolicy
      */
     public function forceDelete(User $user, KartuKeluarga $kartuKeluarga): bool
     {
-        // Hanya petugas kecamatan yang bisa hapus permanen
-        return $user->isPetugasKecamatan();
+        // Hanya Super Admin dan petugas kecamatan yang bisa hapus permanen
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 }

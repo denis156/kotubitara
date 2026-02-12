@@ -23,9 +23,9 @@ class KelahiranPolicy
      */
     public function view(User $user, Kelahiran $kelahiran): bool
     {
-        // Petugas kecamatan bisa lihat semua data kelahiran
+        // Super Admin dan Petugas kecamatan bisa lihat semua data kelahiran
         // Petugas desa hanya bisa lihat data kelahiran di desa mereka
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($kelahiran->desa_id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($kelahiran->desa_id)->exists();
     }
 
     /**
@@ -42,9 +42,9 @@ class KelahiranPolicy
      */
     public function update(User $user, Kelahiran $kelahiran): bool
     {
-        // Petugas kecamatan bisa update semua data kelahiran
+        // Super Admin dan Petugas kecamatan bisa update semua data kelahiran
         // Petugas desa hanya bisa update data kelahiran di desa mereka
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($kelahiran->desa_id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($kelahiran->desa_id)->exists();
     }
 
     /**
@@ -52,9 +52,9 @@ class KelahiranPolicy
      */
     public function delete(User $user, Kelahiran $kelahiran): bool
     {
-        // Petugas kecamatan bisa delete semua data kelahiran
+        // Super Admin dan Petugas kecamatan bisa delete semua data kelahiran
         // Petugas desa hanya bisa delete data kelahiran di desa mereka
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($kelahiran->desa_id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($kelahiran->desa_id)->exists();
     }
 
     /**
@@ -63,7 +63,7 @@ class KelahiranPolicy
     public function restore(User $user, Kelahiran $kelahiran): bool
     {
         // Sama seperti update
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($kelahiran->desa_id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($kelahiran->desa_id)->exists();
     }
 
     /**
@@ -71,7 +71,7 @@ class KelahiranPolicy
      */
     public function forceDelete(User $user, Kelahiran $kelahiran): bool
     {
-        // Hanya petugas kecamatan yang bisa hapus permanen
-        return $user->isPetugasKecamatan();
+        // Hanya Super Admin dan petugas kecamatan yang bisa hapus permanen
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 }
