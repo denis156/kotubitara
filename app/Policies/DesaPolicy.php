@@ -29,9 +29,9 @@ class DesaPolicy
             return true;
         }
 
-        // Petugas kecamatan bisa lihat semua desa
+        // Super Admin dan Petugas Kecamatan bisa lihat semua desa
         // Petugas desa hanya bisa lihat desa yang mereka akses
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($desa->id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($desa->id)->exists();
     }
 
     /**
@@ -39,8 +39,8 @@ class DesaPolicy
      */
     public function create(User $user): bool
     {
-        // Hanya petugas kecamatan yang bisa buat desa baru
-        return $user->isPetugasKecamatan();
+        // Super Admin dan Petugas Kecamatan bisa buat desa baru
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 
     /**
@@ -53,9 +53,9 @@ class DesaPolicy
             return false;
         }
 
-        // Petugas kecamatan bisa update semua desa
+        // Super Admin dan Petugas Kecamatan bisa update semua desa
         // Petugas desa hanya bisa update desa yang mereka akses
-        return $user->isPetugasKecamatan() || $user->desas()->whereKey($desa->id)->exists();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan() || $user->desas()->whereKey($desa->id)->exists();
     }
 
     /**
@@ -68,8 +68,8 @@ class DesaPolicy
             return false;
         }
 
-        // Hanya petugas kecamatan yang bisa hapus desa
-        return $user->isPetugasKecamatan();
+        // Super Admin dan Petugas Kecamatan bisa hapus desa
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 
     /**
@@ -82,8 +82,8 @@ class DesaPolicy
             return false;
         }
 
-        // Hanya petugas kecamatan yang bisa restore desa
-        return $user->isPetugasKecamatan();
+        // Super Admin dan Petugas Kecamatan bisa restore desa
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 
     /**
@@ -96,7 +96,7 @@ class DesaPolicy
             return false;
         }
 
-        // Hanya petugas kecamatan yang bisa hapus permanen desa
-        return $user->isPetugasKecamatan();
+        // Super Admin dan Petugas Kecamatan bisa hapus permanen desa
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 }

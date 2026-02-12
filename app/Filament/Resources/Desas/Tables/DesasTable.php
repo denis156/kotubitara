@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Desas\Tables;
 
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Support\Enums\Size;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\TrashedFilter;
-use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Table;
 
 class DesasTable
 {
@@ -43,7 +43,7 @@ class DesasTable
                     ->alignment('center')
                     ->fontFamily('mono'),
 
-                TextColumn::make('kecamatan')
+                TextColumn::make('kecamatan.nama_kecamatan')
                     ->label('Kecamatan')
                     ->searchable()
                     ->sortable(),

@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Desas\Schemas;
 
 use App\Models\Desa;
-use Filament\Schemas\Schema;
+use App\Models\Kecamatan;
 use App\Services\ApiWilayahService;
-use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class DesaForm
 {
@@ -24,83 +25,22 @@ class DesaForm
         return $schema
             ->components([
                 Section::make('Informasi Wilayah')
-                    ->description('Pilih wilayah administrasi secara berurutan mulai dari Provinsi hingga Desa.')
+                    ->description('Pilih kecamatan dan desa untuk mendaftarkan desa baru.')
                     ->aside()
                     ->columnSpanFull()
                     ->schema([
-                        Select::make('nama_provinsi')
-                            ->label('Provinsi')
-                            ->required()
-                            ->searchable()
-                            ->options(fn () => $apiWilayah->getProvinces()->pluck('name', 'name')->toArray())
-                            ->default('SULAWESI TENGGARA')
-                            ->afterStateUpdated(function (callable $set) {
-                                $set('nama_kabupaten', null);
-                                $set('nama_kecamatan', null);
-                                $set('nama_desa', null);
-                            })
-                            ->live()
-                            ->disabled(fn () => Auth::user()?->isPetugasDesa())
-                            ->helperText('Pilih provinsi tempat desa berada.')
-                            ->validationMessages([
-                                'required' => 'Provinsi wajib dipilih.',
-                            ]),
-
-                        Select::make('nama_kabupaten')
-                            ->label('Kabupaten/Kota')
-                            ->required()
-                            ->searchable()
-                            ->options(function (Get $get) use ($apiWilayah) {
-                                $namaProvinsi = $get('nama_provinsi');
-                                if ($namaProvinsi) {
-                                    $provinces = $apiWilayah->getProvinces();
-                                    $province = $provinces->firstWhere('name', $namaProvinsi);
-                                    if ($province) {
-                                        return $apiWilayah->getRegencies($province['id'])->pluck('name', 'name')->toArray();
-                                    }
-                                }
-                                return [];
-                            })
-                            ->default('KABUPATEN KONAWE')
-                            ->afterStateUpdated(function (callable $set) {
-                                $set('nama_kecamatan', null);
-                                $set('nama_desa', null);
-                            })
-                            ->live()
-                            ->disabled(fn () => Auth::user()?->isPetugasDesa())
-                            ->helperText('Pilih kabupaten/kota sesuai provinsi di atas.')
-                            ->validationMessages([
-                                'required' => 'Kabupaten/Kota wajib dipilih.',
-                            ]),
-
-                        Select::make('nama_kecamatan')
+                        Select::make('kecamatan_id')
                             ->label('Kecamatan')
                             ->required()
                             ->searchable()
-                            ->options(function (Get $get) use ($apiWilayah) {
-                                $namaProvinsi = $get('nama_provinsi');
-                                $namaKabupaten = $get('nama_kabupaten');
-
-                                if ($namaProvinsi && $namaKabupaten) {
-                                    $provinces = $apiWilayah->getProvinces();
-                                    $province = $provinces->firstWhere('name', $namaProvinsi);
-
-                                    if ($province) {
-                                        $regencies = $apiWilayah->getRegencies($province['id']);
-                                        $regency = $regencies->firstWhere('name', $namaKabupaten);
-
-                                        if ($regency) {
-                                            return $apiWilayah->getDistricts($regency['id'])->pluck('name', 'name')->toArray();
-                                        }
-                                    }
-                                }
-                                return [];
-                            })
-                            ->default('WONGGEDUKU BARAT')
+                            ->relationship('kecamatan', 'nama_kecamatan')
+                            ->preload()
                             ->afterStateUpdated(fn (callable $set) => $set('nama_desa', null))
                             ->live()
-                            ->disabled(fn () => Auth::user()?->isPetugasDesa())
-                            ->helperText('Pilih kecamatan sesuai kabupaten/kota di atas.')
+                            ->disabled(fn () => ! Auth::user()?->isSuperAdmin())
+                            ->dehydrated(fn () => Auth::user()?->isSuperAdmin())
+                            ->hint(fn () => ! Auth::user()?->isSuperAdmin() ? 'Otomatis' : null)
+                            ->helperText('Pilih kecamatan tempat desa berada.')
                             ->validationMessages([
                                 'required' => 'Kecamatan wajib dipilih.',
                             ]),
@@ -110,40 +50,28 @@ class DesaForm
                             ->required()
                             ->searchable()
                             ->options(function (Get $get) use ($apiWilayah, $record) {
-                                $namaProvinsi = $get('nama_provinsi');
-                                $namaKabupaten = $get('nama_kabupaten');
-                                $namaKecamatan = $get('nama_kecamatan');
+                                $kecamatanId = $get('kecamatan_id');
 
-                                if ($namaProvinsi && $namaKabupaten && $namaKecamatan) {
-                                    $provinces = $apiWilayah->getProvinces();
-                                    $province = $provinces->firstWhere('name', $namaProvinsi);
+                                if ($kecamatanId) {
+                                    $kecamatan = Kecamatan::find($kecamatanId);
 
-                                    if ($province) {
-                                        $regencies = $apiWilayah->getRegencies($province['id']);
-                                        $regency = $regencies->firstWhere('name', $namaKabupaten);
+                                    if ($kecamatan) {
+                                        $villages = $apiWilayah->getVillages($kecamatan->kode_kecamatan);
 
-                                        if ($regency) {
-                                            $districts = $apiWilayah->getDistricts($regency['id']);
-                                            $district = $districts->firstWhere('name', $namaKecamatan);
+                                        // Get registered kode_desa, exclude current record if editing
+                                        $registeredKodeDesa = Desa::when($record, function ($query) use ($record) {
+                                            return $query->where('id', '!=', $record->id);
+                                        })->pluck('kode_desa')->toArray();
 
-                                            if ($district) {
-                                                $villages = $apiWilayah->getVillages($district['id']);
+                                        // Filter out registered villages
+                                        $availableVillages = $villages->filter(function ($village) use ($registeredKodeDesa) {
+                                            return ! in_array($village['id'], $registeredKodeDesa);
+                                        });
 
-                                                // Get registered kode_desa, exclude current record if editing
-                                                $registeredKodeDesa = Desa::when($record, function ($query) use ($record) {
-                                                    return $query->where('id', '!=', $record->id);
-                                                })->pluck('kode_desa')->toArray();
-
-                                                // Filter out registered villages
-                                                $availableVillages = $villages->filter(function ($village) use ($registeredKodeDesa) {
-                                                    return ! in_array($village['id'], $registeredKodeDesa);
-                                                });
-
-                                                return $availableVillages->pluck('name', 'name')->toArray();
-                                            }
-                                        }
+                                        return $availableVillages->pluck('name', 'name')->toArray();
                                     }
                                 }
+
                                 return [];
                             })
                             ->disabled(fn () => Auth::user()?->isPetugasDesa())

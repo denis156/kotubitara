@@ -5,22 +5,21 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Models\Desa;
-use Illuminate\Support\Str;
 use App\Services\ApiWilayahService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class DesaObserver
 {
     public function __construct(
         private ApiWilayahService $apiWilayah
-    ) {
-    }
+    ) {}
 
     public function creating(Desa $desa): void
     {
-        // Auto-fill semua kode wilayah dari nama wilayah
-        if (! empty($desa->nama_desa)) {
-            $this->fillKodeWilayahFromNama($desa);
+        // Auto-fill kode_desa dari nama_desa dan kecamatan_id
+        if (! empty($desa->nama_desa) && ! empty($desa->kecamatan_id)) {
+            $this->fillKodeDesaFromNama($desa);
         }
 
         // Auto-generate slug
@@ -39,9 +38,9 @@ class DesaObserver
 
     public function updating(Desa $desa): void
     {
-        // Auto-fill semua kode wilayah jika nama wilayah berubah
-        if ($desa->isDirty('nama_desa') || $desa->isDirty('nama_kecamatan') || $desa->isDirty('nama_kabupaten') || $desa->isDirty('nama_provinsi')) {
-            $this->fillKodeWilayahFromNama($desa);
+        // Auto-fill kode_desa jika nama_desa atau kecamatan_id berubah
+        if (($desa->isDirty('nama_desa') || $desa->isDirty('kecamatan_id')) && ! empty($desa->nama_desa) && ! empty($desa->kecamatan_id)) {
+            $this->fillKodeDesaFromNama($desa);
         }
 
         // Auto-generate slug jika nama_desa berubah
@@ -50,47 +49,18 @@ class DesaObserver
         }
     }
 
-    private function fillKodeWilayahFromNama(Desa $desa): void
+    private function fillKodeDesaFromNama(Desa $desa): void
     {
-        // Cari kode provinsi dari nama provinsi
-        if (! empty($desa->nama_provinsi)) {
-            $provinces = $this->apiWilayah->getProvinces();
-            $province = $provinces->firstWhere('name', $desa->nama_provinsi);
+        // Ambil kecamatan dari relasi
+        $kecamatan = $desa->kecamatan;
 
-            if ($province) {
-                $desa->kode_provinsi = $province['id'];
+        if ($kecamatan && ! empty($desa->nama_desa)) {
+            // Cari kode desa dari nama desa berdasarkan kode kecamatan
+            $villages = $this->apiWilayah->getVillages($kecamatan->kode_kecamatan);
+            $village = $villages->firstWhere('name', $desa->nama_desa);
 
-                // Cari kode kabupaten dari nama kabupaten
-                if (! empty($desa->nama_kabupaten)) {
-                    $regencies = $this->apiWilayah->getRegencies($province['id']);
-                    $regency = $regencies->firstWhere('name', $desa->nama_kabupaten);
-
-                    if ($regency) {
-                        $desa->kode_kabupaten = $regency['id'];
-
-                        // Cari kode kecamatan dari nama kecamatan
-                        if (! empty($desa->nama_kecamatan)) {
-                            $districts = $this->apiWilayah->getDistricts($regency['id']);
-                            $district = $districts->firstWhere('name', $desa->nama_kecamatan);
-
-                            if ($district) {
-                                $desa->kode_kecamatan = $district['id'];
-                                // Keep old 'kecamatan' field for backward compatibility
-                                $desa->kecamatan = $district['name'];
-
-                                // Cari kode desa dari nama desa
-                                if (! empty($desa->nama_desa)) {
-                                    $villages = $this->apiWilayah->getVillages($district['id']);
-                                    $village = $villages->firstWhere('name', $desa->nama_desa);
-
-                                    if ($village) {
-                                        $desa->kode_desa = $village['id'];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            if ($village) {
+                $desa->kode_desa = $village['id'];
             }
         }
     }
@@ -106,7 +76,7 @@ class DesaObserver
         $counter = 1;
 
         while (Desa::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
             $counter++;
         }
 
