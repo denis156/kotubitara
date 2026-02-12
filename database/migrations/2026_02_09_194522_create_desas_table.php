@@ -14,16 +14,10 @@ return new class () extends Migration {
     {
         Schema::create('desas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('kecamatan_id')->constrained('kecamatans')->cascadeOnDelete();
             $table->string('nama_desa', 100);
             $table->string('slug', 100)->unique();
             $table->string('kode_desa', 20)->unique();
-            $table->string('kode_provinsi', 2);
-            $table->string('nama_provinsi');
-            $table->string('kode_kabupaten', 4);
-            $table->string('nama_kabupaten');
-            $table->string('kode_kecamatan', 7);
-            $table->string('nama_kecamatan');
-            $table->string('kecamatan', 100);
             $table->text('alamat')->nullable();
             $table->string('telepon', 20)->nullable();
             $table->string('email')->nullable();

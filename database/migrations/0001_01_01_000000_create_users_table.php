@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->enum('role', ['petugas-kecamatan', 'petugas-desa'])->default('petugas-desa');
+            $table->string('role')->default('petugas-desa');
             $table->string('telepon', 20)->nullable();
             $table->string('avatar_url')->nullable();
             $table->timestamp('email_verified_at')->nullable();

@@ -10,6 +10,7 @@ use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -31,20 +32,19 @@ class Desa extends Model implements HasName
     }
 
     protected $fillable = [
+        'kecamatan_id',
         'nama_desa',
         'slug',
         'kode_desa',
-        'kode_provinsi',
-        'nama_provinsi',
-        'kode_kabupaten',
-        'nama_kabupaten',
-        'kode_kecamatan',
-        'nama_kecamatan',
-        'kecamatan',
         'alamat',
         'telepon',
         'email',
     ];
+
+    public function kecamatan(): BelongsTo
+    {
+        return $this->belongsTo(Kecamatan::class);
+    }
 
     public function users(): BelongsToMany
     {

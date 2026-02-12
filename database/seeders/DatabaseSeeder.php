@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Models\AparatDesa;
 use App\Models\Desa;
 use App\Models\KartuKeluarga;
+use App\Models\Kecamatan;
 use App\Models\Kelahiran;
 use App\Models\Kematian;
 use App\Models\MutasiPenduduk;
@@ -26,10 +27,26 @@ class DatabaseSeeder extends Seeder
     {
         $this->command->info('🌱 Seeding database...');
 
+        // Create Kecamatan (only 1)
+        $this->command->info('🏛️ Creating Kecamatan...');
+        $kecamatan = Kecamatan::factory()->create();
+        $this->command->info('✅ Created Kecamatan: '.$kecamatan->nama_kecamatan);
+
         // Create Desa
         $this->command->info('📍 Creating Desa...');
-        $desas = Desa::factory(5)->create();
+        $desas = Desa::factory(5)->create([
+            'kecamatan_id' => $kecamatan->id,
+        ]);
         $this->command->info('✅ Created '.$desas->count().' desas');
+
+        // Create Super Admin (can access everything)
+        $this->command->info('🦸 Creating Super Admin...');
+        $superAdmin = User::factory()->superAdmin()->create([
+            'name' => 'Super Admin',
+            'email' => 'admin@kotubitara.id',
+        ]);
+        $superAdmin->desas()->attach($desas->pluck('id'));
+        $this->command->info('✅ Created Super Admin with access to all desas');
 
         // Create Petugas Kecamatan (can access all desas)
         $this->command->info('👤 Creating Petugas Kecamatan...');
@@ -221,6 +238,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('🎉 Database seeded successfully!');
         $this->command->info('');
         $this->command->info('📊 Summary:');
+        $this->command->info('  - Kecamatan: '.Kecamatan::count());
         $this->command->info('  - Desa: '.$desas->count());
         $this->command->info('  - Users: '.User::count());
         $this->command->info('  - Kartu Keluarga: '.$totalKK);
@@ -233,6 +251,10 @@ class DatabaseSeeder extends Seeder
         $this->command->info('  - Mutasi Penduduk: '.$totalMutasi);
         $this->command->info('');
         $this->command->info('🔑 Login credentials:');
+        $this->command->info('  Super Admin:');
+        $this->command->info('    Email: admin@kotubitara.id');
+        $this->command->info('    Password: password');
+        $this->command->info('');
         $this->command->info('  Petugas Kecamatan:');
         $this->command->info('    Email: kecamatan@kotubitara.id');
         $this->command->info('    Password: password');

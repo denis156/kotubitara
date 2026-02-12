@@ -74,8 +74,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
 
     public function getTenants(Panel $panel): Collection
     {
-        // Petugas Kecamatan bisa akses semua desa + opsi "Semua Desa"
-        if ($this->isPetugasKecamatan()) {
+        // Super Admin dan Petugas Kecamatan bisa akses semua desa + opsi "Semua Desa"
+        if ($this->isSuperAdmin() || $this->isPetugasKecamatan()) {
             // Get special "Semua Desa" tenant dan semua desa real
             $semuaDesa = Desa::where('slug', 'semua-desa')->first();
             $allDesas = Desa::where('slug', '!=', 'semua-desa')->get();
@@ -94,8 +94,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
 
     public function canAccessTenant(Model $tenant): bool
     {
-        // Petugas Kecamatan bisa akses semua desa termasuk "Semua Desa"
-        if ($this->isPetugasKecamatan()) {
+        // Super Admin dan Petugas Kecamatan bisa akses semua desa termasuk "Semua Desa"
+        if ($this->isSuperAdmin() || $this->isPetugasKecamatan()) {
             return true;
         }
 
@@ -110,6 +110,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === UserRole::SUPER_ADMIN;
     }
 
     public function isPetugasKecamatan(): bool

@@ -48,6 +48,16 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the user is role super-admin.
+     */
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'super-admin',
+        ]);
+    }
+
+    /**
      * Indicate that the user is role petugas-kecamatan.
      */
     public function petugasKecamatan(): static

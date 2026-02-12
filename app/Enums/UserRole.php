@@ -9,12 +9,14 @@ use Filament\Support\Contracts\HasLabel;
 
 enum UserRole: string implements HasColor, HasLabel
 {
+    case SUPER_ADMIN = 'super-admin';
     case PETUGAS_KECAMATAN = 'petugas-kecamatan';
     case PETUGAS_DESA = 'petugas-desa';
 
     public function getLabel(): string
     {
         return match ($this) {
+            self::SUPER_ADMIN => 'Super Admin',
             self::PETUGAS_KECAMATAN => 'Petugas Kecamatan',
             self::PETUGAS_DESA => 'Petugas Desa',
         };
@@ -23,6 +25,7 @@ enum UserRole: string implements HasColor, HasLabel
     public function getColor(): string | array | null
     {
         return match ($this) {
+            self::SUPER_ADMIN => 'danger',
             self::PETUGAS_KECAMATAN => 'success',
             self::PETUGAS_DESA => 'info',
         };

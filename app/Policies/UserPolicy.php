@@ -13,7 +13,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isPetugasKecamatan();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 
     /**
@@ -21,7 +21,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return $user->isPetugasKecamatan();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 
     /**
@@ -29,7 +29,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isPetugasKecamatan();
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 
     /**
@@ -37,7 +37,12 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->isPetugasKecamatan();
+        // Super Admin tidak bisa diedit oleh Petugas Kecamatan
+        if ($model->isSuperAdmin() && $user->isPetugasKecamatan()) {
+            return false;
+        }
+
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 
     /**
@@ -45,7 +50,12 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $user->isPetugasKecamatan();
+        // Super Admin tidak bisa dihapus oleh Petugas Kecamatan
+        if ($model->isSuperAdmin() && $user->isPetugasKecamatan()) {
+            return false;
+        }
+
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 
     /**
@@ -53,7 +63,12 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        return $user->isPetugasKecamatan();
+        // Super Admin tidak bisa direstore oleh Petugas Kecamatan
+        if ($model->isSuperAdmin() && $user->isPetugasKecamatan()) {
+            return false;
+        }
+
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 
     /**
@@ -61,6 +76,11 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
-        return $user->isPetugasKecamatan();
+        // Super Admin tidak bisa dihapus permanen oleh Petugas Kecamatan
+        if ($model->isSuperAdmin() && $user->isPetugasKecamatan()) {
+            return false;
+        }
+
+        return $user->isSuperAdmin() || $user->isPetugasKecamatan();
     }
 }
