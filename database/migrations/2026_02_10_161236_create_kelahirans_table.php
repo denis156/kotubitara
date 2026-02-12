@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -15,7 +16,7 @@ return new class () extends Migration {
             $table->foreignId('desa_id')->constrained('desas')->cascadeOnDelete();
             $table->string('nama_bayi');
             $table->string('nik_bayi', 16)->nullable()->unique();
-            $table->enum('jenis_kelamin', ['laki-laki', 'perempuan']);
+            $table->string('jenis_kelamin');
             $table->date('tanggal_lahir');
             $table->time('waktu_lahir')->nullable();
             $table->string('tempat_lahir');
