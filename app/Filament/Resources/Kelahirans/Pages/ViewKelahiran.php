@@ -65,12 +65,12 @@ class ViewKelahiran extends Page
 
     public function getHeading(): string
     {
-        return 'Preview Surat - '.($this->record->no_surat_kelahiran ?? 'DRAFT');
+        return 'Lihat '.$this->record->nama_bayi;
     }
 
     public function getTitle(): string|Htmlable
     {
-        return 'Preview Surat - '.($this->record->no_surat_kelahiran ?? 'DRAFT');
+        return 'Lihat '.$this->record->nama_bayi;
     }
 
     public function mount(int|string $record): void

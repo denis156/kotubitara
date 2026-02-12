@@ -65,12 +65,12 @@ class ViewKematian extends Page
 
     public function getHeading(): string
     {
-        return 'Preview Surat - '.($this->record->no_surat_kematian ?? 'DRAFT');
+        return 'Lihat '.($this->record->no_surat_kematian ?? 'DRAFT');
     }
 
     public function getTitle(): string|Htmlable
     {
-        return 'Preview Surat - '.($this->record->no_surat_kematian ?? 'DRAFT');
+        return 'Lihat '.($this->record->no_surat_kematian ?? 'DRAFT');
     }
 
     public function mount(int|string $record): void

@@ -285,7 +285,7 @@ class KelahiranForm
                             ->visibility('public')
                             ->maxSize(2048)
                             ->hint('Opsional')
-                            ->helperText('Upload foto surat keterangan lahir dari RS/Bidan/Puskesmas (maks. 2MB).')
+                            ->helperText('Alternatif: Upload gambar tanda tangan (maks. 2MB).')
                             ->columnSpanFull()
                             ->validationMessages([
                                 'max' => 'Ukuran file tidak boleh lebih dari 2MB.',
