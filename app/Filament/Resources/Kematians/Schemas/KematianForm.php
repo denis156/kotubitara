@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Kematians\Schemas;
 
 use App\Enums\HubunganPelapor;
-use App\Enums\JabatanAparat;
+use App\Enums\JabatanAparatDesa;
 use App\Helpers\DesaFieldHelper;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -239,7 +239,7 @@ class KematianForm
                                 'kepalaDesa',
                                 'nama_lengkap',
                                 fn ($query, Get $get) => $query
-                                    ->where('jabatan', JabatanAparat::KEPALA_DESA)
+                                    ->where('jabatan', JabatanAparatDesa::KEPALA_DESA)
                                     ->where('status', 'aktif')
                                     ->when(
                                         $get('desa_id'),
