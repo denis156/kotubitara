@@ -27,7 +27,7 @@ return new class extends Migration
 
             // Tujuan & Keperluan
             $table->string('ditujukan_kepada'); // Polsek, KUA, Disdukcapil, dll
-            $table->string('keperluan');
+            $table->string('keperluan')->nullable();
 
             // Specific Data per Jenis (JSON)
             $table->json('data_skck')->nullable();
