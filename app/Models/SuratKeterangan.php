@@ -32,6 +32,8 @@ class SuratKeterangan extends Model
         'data_ahli_waris',
         'data_tambahan',
         'data_pelapor',
+        'ttd_pemohon',
+        'foto_ttd_pemohon',
         'dokumen_pendukung',
         'no_surat',
         'tanggal_surat',

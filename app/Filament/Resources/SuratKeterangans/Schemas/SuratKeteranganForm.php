@@ -17,6 +17,7 @@ use App\Filament\Resources\SuratKeterangans\Schemas\Components\TidakMampuFields;
 use App\Filament\Resources\SuratKeterangans\Schemas\Components\UsahaFields;
 use App\Helpers\DesaFieldHelper;
 use App\Models\AparatDesa;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -27,6 +28,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
+use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 
 class SuratKeteranganForm
 {
@@ -140,9 +142,49 @@ class SuratKeteranganForm
 
                     // Step 3: Tanda Tangan & Dokumen
                     Step::make('Dokumen & Tanda Tangan')
-                        ->description('Upload dokumen pendukung')
+                        ->description('Tanda tangan pemohon dan dokumen pendukung')
                         ->icon('heroicon-o-document-arrow-up')
                         ->schema([
+                            SignaturePad::make('ttd_pemohon')
+                                ->label('Tanda Tangan Digital Pemohon')
+                                ->backgroundColor('rgba(250, 250, 250, 1)')
+                                ->backgroundColorOnDark('rgba(30, 30, 30, 1)')
+                                ->exportBackgroundColor('rgb(255, 255, 255)')
+                                ->penColor('#000')
+                                ->penColorOnDark('#fff')
+                                ->exportPenColor('rgb(0, 0, 0)')
+                                ->dotSize(2.0)
+                                ->lineMinWidth(0.5)
+                                ->lineMaxWidth(2.5)
+                                ->throttle(16)
+                                ->velocityFilterWeight(0.7)
+                                ->minDistance(5)
+                                ->confirmable()
+                                ->clearable()
+                                ->undoable()
+                                ->required(false)
+                                ->hint('Opsional')
+                                ->helperText('Tanda tangan di area kotak dengan mouse atau touchscreen.')
+                                ->columnSpanFull()
+                                ->clearAction(fn (Action $action) => $action->button())
+                                ->undoAction(fn (Action $action) => $action->button()->icon('heroicon-o-arrow-uturn-left'))
+                                ->doneAction(fn (Action $action) => $action->button()->icon('heroicon-o-check-circle')),
+
+                            FileUpload::make('foto_ttd_pemohon')
+                                ->label('Foto Tanda Tangan Pemohon')
+                                ->image()
+                                ->imageEditor()
+                                ->disk('public')
+                                ->directory('surat-keterangan/tanda-tangan')
+                                ->visibility('public')
+                                ->maxSize(2048)
+                                ->hint('Opsional')
+                                ->helperText('Alternatif: Upload gambar tanda tangan (maks. 2MB).')
+                                ->columnSpanFull()
+                                ->validationMessages([
+                                    'max' => 'Ukuran file tidak boleh lebih dari 2MB.',
+                                ]),
+
                             FileUpload::make('dokumen_pendukung')
                                 ->label('Dokumen Pendukung')
                                 ->multiple()

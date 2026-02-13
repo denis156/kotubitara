@@ -32,6 +32,14 @@ class SuratKeteranganObserver
      */
     public function updating(SuratKeterangan $suratKeterangan): void
     {
+        // Handle file cleanup for foto_ttd_pemohon
+        if ($suratKeterangan->isDirty('foto_ttd_pemohon')) {
+            $oldFotoTtd = $suratKeterangan->getOriginal('foto_ttd_pemohon');
+            if ($oldFotoTtd && Storage::disk('public')->exists($oldFotoTtd)) {
+                Storage::disk('public')->delete($oldFotoTtd);
+            }
+        }
+
         // Handle file cleanup for data_pelapor JSON field
         if ($suratKeterangan->isDirty('data_pelapor')) {
             $oldDataPelapor = $suratKeterangan->getOriginal('data_pelapor');
@@ -94,6 +102,13 @@ class SuratKeteranganObserver
      */
     private function deleteFiles(SuratKeterangan $suratKeterangan): void
     {
+        // Delete foto_ttd_pemohon
+        if ($suratKeterangan->foto_ttd_pemohon) {
+            if (Storage::disk('public')->exists($suratKeterangan->foto_ttd_pemohon)) {
+                Storage::disk('public')->delete($suratKeterangan->foto_ttd_pemohon);
+            }
+        }
+
         // Delete foto_ttd from data_pelapor
         if (isset($suratKeterangan->data_pelapor['foto_ttd'])) {
             $fotoTtd = $suratKeterangan->data_pelapor['foto_ttd'];

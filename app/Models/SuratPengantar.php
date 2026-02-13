@@ -32,6 +32,8 @@ class SuratPengantar extends Model
         'data_dokumen',
         'data_tambahan',
         'data_pelapor',
+        'ttd_pemohon',
+        'foto_ttd_pemohon',
         'dokumen_pendukung',
         'no_surat',
         'tanggal_surat',

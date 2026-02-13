@@ -32,6 +32,14 @@ class SuratPengantarObserver
      */
     public function updating(SuratPengantar $suratPengantar): void
     {
+        // Handle file cleanup for foto_ttd_pemohon
+        if ($suratPengantar->isDirty('foto_ttd_pemohon')) {
+            $oldFotoTtd = $suratPengantar->getOriginal('foto_ttd_pemohon');
+            if ($oldFotoTtd && Storage::disk('public')->exists($oldFotoTtd)) {
+                Storage::disk('public')->delete($oldFotoTtd);
+            }
+        }
+
         // Handle file cleanup for data_pelapor JSON field
         if ($suratPengantar->isDirty('data_pelapor')) {
             $oldDataPelapor = $suratPengantar->getOriginal('data_pelapor');
@@ -94,6 +102,13 @@ class SuratPengantarObserver
      */
     private function deleteFiles(SuratPengantar $suratPengantar): void
     {
+        // Delete foto_ttd_pemohon
+        if ($suratPengantar->foto_ttd_pemohon) {
+            if (Storage::disk('public')->exists($suratPengantar->foto_ttd_pemohon)) {
+                Storage::disk('public')->delete($suratPengantar->foto_ttd_pemohon);
+            }
+        }
+
         // Delete foto_ttd from data_pelapor
         if (isset($suratPengantar->data_pelapor['foto_ttd'])) {
             $fotoTtd = $suratPengantar->data_pelapor['foto_ttd'];

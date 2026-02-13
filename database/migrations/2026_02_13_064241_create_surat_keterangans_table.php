@@ -37,6 +37,10 @@ return new class extends Migration
             // Data Pelapor (JSON) - untuk TTD, foto TTD, dll
             $table->json('data_pelapor')->nullable();
 
+            // Tanda Tangan Pemohon
+            $table->text('ttd_pemohon')->nullable();
+            $table->string('foto_ttd_pemohon')->nullable();
+
             // Dokumen Pendukung (JSON)
             $table->json('dokumen_pendukung')->nullable();
 
