@@ -59,7 +59,6 @@ class KelahiranResource extends Resource
             'index' => ListKelahirans::route('/'),
             'create' => CreateKelahiran::route('/create'),
             'edit' => EditKelahiran::route('/{record}/edit'),
-            'view' => ViewKelahiran::route('/{record}/view'),
         ];
     }
 

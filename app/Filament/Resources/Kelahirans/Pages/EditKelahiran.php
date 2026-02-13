@@ -19,11 +19,6 @@ class EditKelahiran extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('preview')
-                ->label('Preview Surat')
-                ->icon(Heroicon::Eye)
-                ->color('info')
-                ->url(fn() => static::getResource()::getUrl('view', ['record' => $this->record])),
             DeleteAction::make()
                 ->label('Hapus Kelahiran')
                 ->color('danger')

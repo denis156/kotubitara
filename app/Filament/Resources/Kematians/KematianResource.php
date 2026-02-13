@@ -59,7 +59,6 @@ class KematianResource extends Resource
             'index' => ListKematians::route('/'),
             'create' => CreateKematian::route('/create'),
             'edit' => EditKematian::route('/{record}/edit'),
-            'view' => ViewKematian::route('/{record}/view'),
         ];
     }
 
