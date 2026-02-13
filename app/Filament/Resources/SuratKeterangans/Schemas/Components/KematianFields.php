@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Filament\Resources\SuratKeterangans\Schemas\Components;
 
 use App\Enums\JenisSuratKeterangan;
+use App\Models\Kematian;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 class KematianFields
 {
@@ -19,12 +21,38 @@ class KematianFields
         return [
             Select::make('data_kematian.kematian_id')
                 ->label('Data Kematian')
-                ->relationship('kematian', 'id')
-                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->penduduk->nama_lengkap} - {$record->tanggal_meninggal->format('d/m/Y')}")
-                ->searchable(['penduduk.nama_lengkap'])
+                ->options(function (Get $get) {
+                    $desaId = $get('desa_id');
+                    if (! $desaId) {
+                        return [];
+                    }
+
+                    return Kematian::where('desa_id', $desaId)
+                        ->with('penduduk')
+                        ->get()
+                        ->mapWithKeys(fn ($kematian) => [
+                            $kematian->id => "{$kematian->penduduk->nama_lengkap} - {$kematian->tanggal_meninggal->format('d/m/Y')}",
+                        ]);
+                })
+                ->searchable()
                 ->preload()
-                ->hint('Opsional')
-                ->helperText('Pilih dari data kematian yang sudah ada.')
+                ->required()
+                ->live()
+                ->afterStateUpdated(function ($state, Set $set) {
+                    if ($state) {
+                        $kematian = Kematian::find($state);
+                        if ($kematian) {
+                            $set('data_kematian.tanggal_meninggal', $kematian->tanggal_meninggal?->format('Y-m-d'));
+                            $set('data_kematian.waktu_meninggal', $kematian->waktu_meninggal);
+                            $set('data_kematian.tempat_meninggal', $kematian->tempat_meninggal);
+                            $set('data_kematian.sebab_kematian', $kematian->sebab_kematian);
+                            $set('data_kematian.tempat_pemakaman', $kematian->tempat_pemakaman);
+                            $set('data_kematian.tanggal_pemakaman', $kematian->tanggal_pemakaman?->format('Y-m-d'));
+                            $set('data_kematian.keterangan_tambahan', $kematian->keterangan);
+                        }
+                    }
+                })
+                ->helperText('Pilih dari data kematian yang sudah ada di desa ini. Field di bawah akan terisi otomatis.')
                 ->visible(fn (Get $get): bool => self::isVisible($get))
                 ->columnSpanFull(),
 
@@ -33,54 +61,61 @@ class KematianFields
                 ->native(false)
                 ->displayFormat('d/m/Y')
                 ->maxDate(now())
-                ->hint('Opsional')
-                ->helperText('Tanggal penduduk meninggal dunia.')
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
                 ->visible(fn (Get $get): bool => self::isVisible($get)),
 
             TimePicker::make('data_kematian.waktu_meninggal')
                 ->label('Waktu Meninggal')
                 ->native(false)
                 ->seconds(false)
-                ->hint('Opsional')
-                ->helperText('Jam dan menit saat meninggal.')
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
                 ->visible(fn (Get $get): bool => self::isVisible($get)),
 
             TextInput::make('data_kematian.tempat_meninggal')
                 ->label('Tempat Meninggal')
                 ->maxLength(255)
-                ->hint('Opsional')
-                ->helperText('Lokasi atau tempat penduduk meninggal (cth: Rumah, Rumah Sakit).')
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
                 ->visible(fn (Get $get): bool => self::isVisible($get)),
 
             TextInput::make('data_kematian.sebab_kematian')
                 ->label('Sebab Kematian')
                 ->maxLength(255)
-                ->hint('Opsional')
-                ->helperText('Penyebab kematian (cth: Sakit, Kecelakaan, Usia Lanjut).')
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
                 ->visible(fn (Get $get): bool => self::isVisible($get))
                 ->columnSpanFull(),
 
             TextInput::make('data_kematian.tempat_pemakaman')
                 ->label('Tempat Pemakaman')
                 ->maxLength(255)
-                ->hint('Opsional')
-                ->helperText('Lokasi pemakaman (cth: TPU, Makam Keluarga).')
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
                 ->visible(fn (Get $get): bool => self::isVisible($get)),
 
             DatePicker::make('data_kematian.tanggal_pemakaman')
                 ->label('Tanggal Pemakaman')
                 ->native(false)
                 ->displayFormat('d/m/Y')
-                ->hint('Opsional')
-                ->helperText('Tanggal dilaksanakan pemakaman.')
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
                 ->visible(fn (Get $get): bool => self::isVisible($get)),
 
             Textarea::make('data_kematian.keterangan_tambahan')
                 ->label('Keterangan Tambahan')
                 ->maxLength(1000)
                 ->rows(3)
-                ->hint('Opsional')
-                ->helperText('Catatan tambahan terkait kematian.')
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
                 ->visible(fn (Get $get): bool => self::isVisible($get))
                 ->columnSpanFull(),
         ];
