@@ -18,6 +18,7 @@ enum JenisSuratKeterangan: string implements HasLabel
     case KEHILANGAN = 'kehilangan';
     case JANDA_DUDA = 'janda-duda';
     case KELAKUAN_BAIK = 'kelakuan-baik';
+    case KEMATIAN = 'kematian';
 
     public function getLabel(): string
     {
@@ -32,6 +33,7 @@ enum JenisSuratKeterangan: string implements HasLabel
             self::KEHILANGAN => 'Surat Keterangan Kehilangan',
             self::JANDA_DUDA => 'Surat Keterangan Janda/Duda',
             self::KELAKUAN_BAIK => 'Surat Keterangan Kelakuan Baik',
+            self::KEMATIAN => 'Surat Keterangan Kematian',
         };
     }
 
@@ -48,6 +50,7 @@ enum JenisSuratKeterangan: string implements HasLabel
             self::KEHILANGAN => 'SK/HL',
             self::JANDA_DUDA => 'SK/JD',
             self::KELAKUAN_BAIK => 'SK/KB',
+            self::KEMATIAN => 'SK/KMT',
         };
     }
 
@@ -64,6 +67,7 @@ enum JenisSuratKeterangan: string implements HasLabel
             self::KEHILANGAN => 'warning',
             self::JANDA_DUDA => 'gray',
             self::KELAKUAN_BAIK => 'success',
+            self::KEMATIAN => 'danger',
         };
     }
 }

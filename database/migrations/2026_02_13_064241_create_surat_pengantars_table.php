@@ -19,11 +19,12 @@ return new class extends Migration
             // Core Data
             $table->foreignId('desa_id')->constrained()->cascadeOnDelete();
             $table->foreignId('penduduk_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('kelahiran_id')->nullable()->constrained('kelahirans')->nullOnDelete();
             $table->string('jenis_surat'); // skck, nikah, pindah, dll
 
             // Data Pemohon (bisa auto-fill dari penduduk)
             $table->string('nama_pemohon');
-            $table->string('nik_pemohon');
+            $table->string('nik_pemohon')->nullable();
 
             // Tujuan & Keperluan
             $table->string('ditujukan_kepada'); // Polsek, KUA, Disdukcapil, dll
@@ -34,6 +35,7 @@ return new class extends Migration
             $table->json('data_nikah')->nullable();
             $table->json('data_pindah')->nullable();
             $table->json('data_dokumen')->nullable();
+            $table->json('data_kelahiran')->nullable();
             $table->json('data_tambahan')->nullable();
 
             // Data Pelapor (JSON) - untuk TTD, foto TTD, dll

@@ -15,6 +15,7 @@ enum JenisSuratPengantar: string implements HasLabel
     case BEROBAT = 'berobat';
     case IZIN_KERAMAIAN = 'izin-keramaian';
     case KREDIT_BANK = 'kredit-bank';
+    case KELAHIRAN = 'kelahiran';
     case LAINNYA = 'lainnya';
 
     public function getLabel(): string
@@ -27,6 +28,7 @@ enum JenisSuratPengantar: string implements HasLabel
             self::BEROBAT => 'Surat Pengantar Berobat',
             self::IZIN_KERAMAIAN => 'Surat Pengantar Izin Keramaian',
             self::KREDIT_BANK => 'Surat Pengantar Kredit Bank',
+            self::KELAHIRAN => 'Surat Pengantar Kelahiran',
             self::LAINNYA => 'Surat Pengantar Lainnya',
         };
     }
@@ -41,6 +43,7 @@ enum JenisSuratPengantar: string implements HasLabel
             self::BEROBAT => 'SP/BRB',
             self::IZIN_KERAMAIAN => 'SP/IZN',
             self::KREDIT_BANK => 'SP/KRD',
+            self::KELAHIRAN => 'SP/LHR',
             self::LAINNYA => 'SP/LN',
         };
     }
@@ -55,6 +58,7 @@ enum JenisSuratPengantar: string implements HasLabel
             self::BEROBAT => 'Rumah Sakit/Puskesmas',
             self::IZIN_KERAMAIAN => 'Kepolisian Sektor (Polsek)',
             self::KREDIT_BANK => 'Bank/Lembaga Keuangan',
+            self::KELAHIRAN => 'Dinas Kependudukan dan Catatan Sipil',
             self::LAINNYA => null,
         };
     }
@@ -69,6 +73,7 @@ enum JenisSuratPengantar: string implements HasLabel
             self::BEROBAT => 'danger',
             self::IZIN_KERAMAIAN => 'warning',
             self::KREDIT_BANK => 'success',
+            self::KELAHIRAN => 'success',
             self::LAINNYA => 'gray',
         };
     }

@@ -12,14 +12,14 @@ class SuratHelper
      * Generate nomor surat otomatis dengan format yang konsisten.
      *
      * Format: PREFIX/YYYY/MM/XXXXX
-     * Contoh: SK/KMT/2026/02/00001, SP/LHR/2026/02/00001
+     * Contoh: SK/DOM/2026/02/00001, SP/SKCK/2026/02/00001
      *
-     * @param  string  $prefix  Prefix surat (contoh: 'SK/KMT', 'SP/LHR')
-     * @param  class-string<Model>  $modelClass  Nama class model
-     * @param  string  $columnName  Nama kolom nomor surat di database
+     * @param  string  $prefix  Prefix surat dari enum (contoh: 'SK/DOM', 'SP/SKCK')
+     * @param  class-string<Model>  $modelClass  Nama class model (SuratKeterangan::class, SuratPengantar::class)
+     * @param  string  $columnName  Nama kolom nomor surat di database (default: 'no_surat')
      * @return string Nomor surat yang di-generate
      */
-    public static function generateNoSurat(string $prefix, string $modelClass, string $columnName): string
+    public static function generateNomorSurat(string $prefix, string $modelClass, string $columnName = 'no_surat'): string
     {
         $year = now()->format('Y');
         $month = now()->format('m');
@@ -42,35 +42,5 @@ class SuratHelper
 
         // Format dengan 5 digit (00001, 00002, dst)
         return $fullPrefix.'/'.str_pad((string) $newNumber, 5, '0', STR_PAD_LEFT);
-    }
-
-    /**
-     * Generate nomor surat kematian.
-     * Format: SK/KMT/YYYY/MM/XXXXX
-     *
-     * @return string
-     */
-    public static function generateNoSuratKematian(): string
-    {
-        return self::generateNoSurat(
-            prefix: 'SK/KMT',
-            modelClass: \App\Models\Kematian::class,
-            columnName: 'no_surat_kematian'
-        );
-    }
-
-    /**
-     * Generate nomor surat pengantar kelahiran.
-     * Format: SP/LHR/YYYY/MM/XXXXX
-     *
-     * @return string
-     */
-    public static function generateNoSuratKelahiran(): string
-    {
-        return self::generateNoSurat(
-            prefix: 'SP/LHR',
-            modelClass: \App\Models\Kelahiran::class,
-            columnName: 'no_surat_kelahiran'
-        );
     }
 }

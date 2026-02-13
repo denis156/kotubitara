@@ -19,10 +19,9 @@ class SuratPengantarObserver
         // Auto generate nomor surat jika kosong
         if (empty($suratPengantar->no_surat)) {
             $prefix = $suratPengantar->jenis_surat->getPrefix();
-            $suratPengantar->no_surat = SuratHelper::generateNoSurat(
+            $suratPengantar->no_surat = SuratHelper::generateNomorSurat(
                 prefix: $prefix,
-                modelClass: SuratPengantar::class,
-                columnName: 'no_surat'
+                modelClass: SuratPengantar::class
             );
         }
     }
@@ -32,6 +31,15 @@ class SuratPengantarObserver
      */
     public function updating(SuratPengantar $suratPengantar): void
     {
+        // Auto generate nomor surat jika masih kosong (untuk data lama yang belum punya nomor)
+        if (empty($suratPengantar->no_surat)) {
+            $prefix = $suratPengantar->jenis_surat->getPrefix();
+            $suratPengantar->no_surat = SuratHelper::generateNomorSurat(
+                prefix: $prefix,
+                modelClass: SuratPengantar::class
+            );
+        }
+
         // Handle file cleanup for foto_ttd_pemohon
         if ($suratPengantar->isDirty('foto_ttd_pemohon')) {
             $oldFotoTtd = $suratPengantar->getOriginal('foto_ttd_pemohon');

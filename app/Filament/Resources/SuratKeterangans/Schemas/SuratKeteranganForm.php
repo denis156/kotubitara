@@ -11,6 +11,7 @@ use App\Filament\Resources\SuratKeterangans\Schemas\Components\DomisiliFields;
 use App\Filament\Resources\SuratKeterangans\Schemas\Components\JandaDudaFields;
 use App\Filament\Resources\SuratKeterangans\Schemas\Components\KehilanganFields;
 use App\Filament\Resources\SuratKeterangans\Schemas\Components\KelakuanBaikFields;
+use App\Filament\Resources\SuratKeterangans\Schemas\Components\KematianFields;
 use App\Filament\Resources\SuratKeterangans\Schemas\Components\PenghasilanFields;
 use App\Filament\Resources\SuratKeterangans\Schemas\Components\SudahMenikahFields;
 use App\Filament\Resources\SuratKeterangans\Schemas\Components\TidakMampuFields;
@@ -81,7 +82,7 @@ class SuratKeteranganForm
                                 ->columnSpanFull(),
 
                             Select::make('penduduk_id')
-                                ->label('Nama Pemohon')
+                                ->label('Pilih Pemohon')
                                 ->relationship('penduduk', 'nama_lengkap')
                                 ->searchable(['nama_lengkap', 'nik'])
                                 ->preload()
@@ -138,6 +139,7 @@ class SuratKeteranganForm
                             ...KehilanganFields::make(),
                             ...JandaDudaFields::make(),
                             ...KelakuanBaikFields::make(),
+                            ...KematianFields::make(),
                         ]),
 
                     // Step 3: Tanda Tangan & Dokumen

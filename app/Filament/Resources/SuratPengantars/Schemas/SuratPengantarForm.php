@@ -7,6 +7,7 @@ namespace App\Filament\Resources\SuratPengantars\Schemas;
 use App\Enums\JenisSuratPengantar;
 use App\Filament\Resources\SuratPengantars\Schemas\Components\BerobatFields;
 use App\Filament\Resources\SuratPengantars\Schemas\Components\IzinKeramaianFields;
+use App\Filament\Resources\SuratPengantars\Schemas\Components\KelahiranFields;
 use App\Filament\Resources\SuratPengantars\Schemas\Components\KreditBankFields;
 use App\Filament\Resources\SuratPengantars\Schemas\Components\KtpKkFields;
 use App\Filament\Resources\SuratPengantars\Schemas\Components\LainnyaFields;
@@ -87,7 +88,7 @@ class SuratPengantarForm
                                 ->columnSpanFull(),
 
                             Select::make('penduduk_id')
-                                ->label('Nama Pemohon')
+                                ->label('Pilih Pemohon')
                                 ->relationship('penduduk', 'nama_lengkap')
                                 ->searchable(['nama_lengkap', 'nik'])
                                 ->preload()
@@ -149,6 +150,7 @@ class SuratPengantarForm
                             ...BerobatFields::make(),
                             ...IzinKeramaianFields::make(),
                             ...KreditBankFields::make(),
+                            ...KelahiranFields::make(),
                             ...LainnyaFields::make(),
                         ]),
 

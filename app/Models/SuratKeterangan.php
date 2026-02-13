@@ -21,6 +21,7 @@ class SuratKeterangan extends Model
     protected $fillable = [
         'desa_id',
         'penduduk_id',
+        'kematian_id',
         'jenis_surat',
         'keperluan',
         'nama_pemohon',
@@ -30,6 +31,7 @@ class SuratKeterangan extends Model
         'data_ekonomi',
         'data_pernikahan',
         'data_ahli_waris',
+        'data_kematian',
         'data_tambahan',
         'data_pelapor',
         'ttd_pemohon',
@@ -51,6 +53,7 @@ class SuratKeterangan extends Model
             'data_ekonomi' => 'array',
             'data_pernikahan' => 'array',
             'data_ahli_waris' => 'array',
+            'data_kematian' => 'array',
             'data_tambahan' => 'array',
             'data_pelapor' => 'array',
             'dokumen_pendukung' => 'array',
@@ -70,5 +73,10 @@ class SuratKeterangan extends Model
     public function kepalaDesa(): BelongsTo
     {
         return $this->belongsTo(AparatDesa::class, 'kepala_desa_id');
+    }
+
+    public function kematian(): BelongsTo
+    {
+        return $this->belongsTo(Kematian::class, 'kematian_id');
     }
 }

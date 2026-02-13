@@ -21,6 +21,7 @@ class SuratPengantar extends Model
     protected $fillable = [
         'desa_id',
         'penduduk_id',
+        'kelahiran_id',
         'jenis_surat',
         'nama_pemohon',
         'nik_pemohon',
@@ -30,6 +31,7 @@ class SuratPengantar extends Model
         'data_nikah',
         'data_pindah',
         'data_dokumen',
+        'data_kelahiran',
         'data_tambahan',
         'data_pelapor',
         'ttd_pemohon',
@@ -50,6 +52,7 @@ class SuratPengantar extends Model
             'data_nikah' => 'array',
             'data_pindah' => 'array',
             'data_dokumen' => 'array',
+            'data_kelahiran' => 'array',
             'data_tambahan' => 'array',
             'data_pelapor' => 'array',
             'dokumen_pendukung' => 'array',
@@ -69,5 +72,10 @@ class SuratPengantar extends Model
     public function kepalaDesa(): BelongsTo
     {
         return $this->belongsTo(AparatDesa::class, 'kepala_desa_id');
+    }
+
+    public function kelahiran(): BelongsTo
+    {
+        return $this->belongsTo(Kelahiran::class, 'kelahiran_id');
     }
 }
