@@ -10,32 +10,10 @@ use Illuminate\Support\Facades\Storage;
 class KematianObserver
 {
     /**
-     * Handle the Kematian "creating" event.
-     * Generate nomor surat sebelum data disimpan.
-     */
-    public function creating(Kematian $kematian): void
-    {
-        // Auto generate nomor surat jika kosong
-        if (empty($kematian->no_surat_kematian)) {
-            $kematian->no_surat_kematian = Kematian::generateNoSurat();
-        }
-    }
-
-    /**
      * Handle the Kematian "updating" event.
      */
     public function updating(Kematian $kematian): void
     {
-        // Check if foto_ttd_pelapor is being changed
-        if ($kematian->isDirty('foto_ttd_pelapor')) {
-            $oldFotoTtd = $kematian->getOriginal('foto_ttd_pelapor');
-
-            // Delete old foto_ttd_pelapor if exists
-            if ($oldFotoTtd && Storage::disk('public')->exists($oldFotoTtd)) {
-                Storage::disk('public')->delete($oldFotoTtd);
-            }
-        }
-
         // Check if foto_surat_rs is being changed
         if ($kematian->isDirty('foto_surat_rs')) {
             $oldFotoSurat = $kematian->getOriginal('foto_surat_rs');
@@ -52,15 +30,7 @@ class KematianObserver
      */
     public function deleted(Kematian $kematian): void
     {
-        // Delete foto_ttd_pelapor when kematian is soft deleted
-        if ($kematian->foto_ttd_pelapor && Storage::disk('public')->exists($kematian->foto_ttd_pelapor)) {
-            Storage::disk('public')->delete($kematian->foto_ttd_pelapor);
-        }
-
-        // Delete foto_surat_rs when kematian is soft deleted
-        if ($kematian->foto_surat_rs && Storage::disk('public')->exists($kematian->foto_surat_rs)) {
-            Storage::disk('public')->delete($kematian->foto_surat_rs);
-        }
+        $this->deleteFiles($kematian);
     }
 
     /**
@@ -77,12 +47,15 @@ class KematianObserver
      */
     public function forceDeleted(Kematian $kematian): void
     {
-        // Delete foto_ttd_pelapor when kematian is permanently deleted
-        if ($kematian->foto_ttd_pelapor && Storage::disk('public')->exists($kematian->foto_ttd_pelapor)) {
-            Storage::disk('public')->delete($kematian->foto_ttd_pelapor);
-        }
+        $this->deleteFiles($kematian);
+    }
 
-        // Delete foto_surat_rs when kematian is permanently deleted
+    /**
+     * Delete all files associated with the kematian.
+     */
+    private function deleteFiles(Kematian $kematian): void
+    {
+        // Delete foto_surat_rs
         if ($kematian->foto_surat_rs && Storage::disk('public')->exists($kematian->foto_surat_rs)) {
             Storage::disk('public')->delete($kematian->foto_surat_rs);
         }

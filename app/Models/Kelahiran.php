@@ -6,8 +6,6 @@ namespace App\Models;
 
 use App\Enums\HubunganPelapor;
 use App\Enums\JenisKelamin;
-use App\Helpers\SuratHelper;
-use App\Models\AparatDesa;
 use App\Models\Desa;
 use App\Models\Penduduk;
 use App\Observers\KelahiranObserver;
@@ -32,22 +30,17 @@ class Kelahiran extends Model
         'tanggal_lahir',
         'waktu_lahir',
         'tempat_lahir',
-        'ayah_id',
-        'ibu_id',
         'berat_lahir',
         'panjang_lahir',
-        'no_surat_kelahiran',
-        'keterangan',
+        'ayah_id',
+        'ibu_id',
         'nama_pelapor',
         'nik_pelapor',
         'hubungan_pelapor',
         'alamat_pelapor',
         'telepon_pelapor',
-        'ttd_pelapor',
-        'foto_ttd_pelapor',
         'foto_surat_rs',
-        'kepala_desa_id',
-        'tanggal_surat',
+        'keterangan',
     ];
 
     protected function casts(): array
@@ -59,7 +52,6 @@ class Kelahiran extends Model
             'berat_lahir' => 'decimal:2',
             'panjang_lahir' => 'decimal:2',
             'hubungan_pelapor' => HubunganPelapor::class,
-            'tanggal_surat' => 'date',
         ];
     }
 
@@ -76,19 +68,5 @@ class Kelahiran extends Model
     public function ibu(): BelongsTo
     {
         return $this->belongsTo(Penduduk::class, 'ibu_id');
-    }
-
-    public function kepalaDesa(): BelongsTo
-    {
-        return $this->belongsTo(AparatDesa::class, 'kepala_desa_id');
-    }
-
-    /**
-     * Generate nomor surat pengantar kelahiran otomatis.
-     * Format: SP/LHR/YYYY/MM/XXXXX
-     */
-    public static function generateNoSurat(): string
-    {
-        return SuratHelper::generateNoSuratKelahiran();
     }
 }

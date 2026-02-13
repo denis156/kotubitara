@@ -14,14 +14,14 @@ return new class () extends Migration {
             $table->id();
             $table->foreignId('penduduk_id')->constrained('penduduks')->cascadeOnDelete();
             $table->foreignId('desa_id')->constrained('desas')->cascadeOnDelete();
+
+            // Data Kematian
             $table->date('tanggal_meninggal');
             $table->time('waktu_meninggal')->nullable();
             $table->string('tempat_meninggal')->nullable();
             $table->string('sebab_kematian')->nullable();
             $table->string('tempat_pemakaman')->nullable();
             $table->date('tanggal_pemakaman')->nullable();
-            $table->string('no_surat_kematian')->nullable()->unique();
-            $table->date('tanggal_surat')->nullable();
 
             // Data Pelapor
             $table->string('nama_pelapor');
@@ -30,11 +30,8 @@ return new class () extends Migration {
             $table->text('alamat_pelapor')->nullable();
             $table->string('telepon_pelapor')->nullable();
 
-            // Tanda Tangan & Dokumen
-            $table->text('ttd_pelapor')->nullable()->comment('Tanda tangan digital pelapor');
-            $table->string('foto_ttd_pelapor')->nullable()->comment('Upload foto tanda tangan pelapor');
+            // Dokumen Pendukung
             $table->string('foto_surat_rs')->nullable()->comment('Upload foto surat keterangan dari RS/dokter');
-            $table->foreignId('kepala_desa_id')->nullable()->constrained('aparat_desas')->nullOnDelete();
 
             $table->text('keterangan')->nullable();
             $table->timestamps();

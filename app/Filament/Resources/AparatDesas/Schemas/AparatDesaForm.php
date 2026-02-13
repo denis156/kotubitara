@@ -186,7 +186,7 @@ class AparatDesaForm
                             ->backgroundColorOnDark('rgba(30, 30, 30, 1)')
                             ->exportBackgroundColor('rgb(255, 255, 255)')
                             ->penColor('#000')
-                            ->penColorOnDark('#fff')
+                            ->penColorOnDark('#000')
                             ->exportPenColor('rgb(0, 0, 0)')
                             ->dotSize(2.0)
                             ->lineMinWidth(0.5)

@@ -10,32 +10,10 @@ use Illuminate\Support\Facades\Storage;
 class KelahiranObserver
 {
     /**
-     * Handle the Kelahiran "creating" event.
-     * Generate nomor surat sebelum data disimpan.
-     */
-    public function creating(Kelahiran $kelahiran): void
-    {
-        // Auto generate nomor surat jika kosong
-        if (empty($kelahiran->no_surat_kelahiran)) {
-            $kelahiran->no_surat_kelahiran = Kelahiran::generateNoSurat();
-        }
-    }
-
-    /**
      * Handle the Kelahiran "updating" event.
      */
     public function updating(Kelahiran $kelahiran): void
     {
-        // Check if foto_ttd_pelapor is being changed
-        if ($kelahiran->isDirty('foto_ttd_pelapor')) {
-            $oldFotoTtd = $kelahiran->getOriginal('foto_ttd_pelapor');
-
-            // Delete old foto_ttd_pelapor if exists
-            if ($oldFotoTtd && Storage::disk('public')->exists($oldFotoTtd)) {
-                Storage::disk('public')->delete($oldFotoTtd);
-            }
-        }
-
         // Check if foto_surat_rs is being changed
         if ($kelahiran->isDirty('foto_surat_rs')) {
             $oldFotoSurat = $kelahiran->getOriginal('foto_surat_rs');
@@ -52,15 +30,7 @@ class KelahiranObserver
      */
     public function deleted(Kelahiran $kelahiran): void
     {
-        // Delete foto_ttd_pelapor when kelahiran is soft deleted
-        if ($kelahiran->foto_ttd_pelapor && Storage::disk('public')->exists($kelahiran->foto_ttd_pelapor)) {
-            Storage::disk('public')->delete($kelahiran->foto_ttd_pelapor);
-        }
-
-        // Delete foto_surat_rs when kelahiran is soft deleted
-        if ($kelahiran->foto_surat_rs && Storage::disk('public')->exists($kelahiran->foto_surat_rs)) {
-            Storage::disk('public')->delete($kelahiran->foto_surat_rs);
-        }
+        $this->deleteFiles($kelahiran);
     }
 
     /**
@@ -77,12 +47,15 @@ class KelahiranObserver
      */
     public function forceDeleted(Kelahiran $kelahiran): void
     {
-        // Delete foto_ttd_pelapor when kelahiran is permanently deleted
-        if ($kelahiran->foto_ttd_pelapor && Storage::disk('public')->exists($kelahiran->foto_ttd_pelapor)) {
-            Storage::disk('public')->delete($kelahiran->foto_ttd_pelapor);
-        }
+        $this->deleteFiles($kelahiran);
+    }
 
-        // Delete foto_surat_rs when kelahiran is permanently deleted
+    /**
+     * Delete all files associated with the kelahiran.
+     */
+    private function deleteFiles(Kelahiran $kelahiran): void
+    {
+        // Delete foto_surat_rs
         if ($kelahiran->foto_surat_rs && Storage::disk('public')->exists($kelahiran->foto_surat_rs)) {
             Storage::disk('public')->delete($kelahiran->foto_surat_rs);
         }

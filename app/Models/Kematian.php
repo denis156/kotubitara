@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\HubunganPelapor;
-use App\Helpers\SuratHelper;
-use App\Models\AparatDesa;
 use App\Models\Desa;
 use App\Models\Penduduk;
 use App\Observers\KematianObserver;
@@ -33,17 +31,12 @@ class Kematian extends Model
         'sebab_kematian',
         'tempat_pemakaman',
         'tanggal_pemakaman',
-        'no_surat_kematian',
-        'tanggal_surat',
         'nama_pelapor',
         'nik_pelapor',
         'hubungan_pelapor',
         'alamat_pelapor',
         'telepon_pelapor',
-        'ttd_pelapor',
-        'foto_ttd_pelapor',
         'foto_surat_rs',
-        'kepala_desa_id',
         'keterangan',
     ];
 
@@ -52,7 +45,6 @@ class Kematian extends Model
         return [
             'tanggal_meninggal' => 'date',
             'tanggal_pemakaman' => 'date',
-            'tanggal_surat' => 'date',
             'hubungan_pelapor' => HubunganPelapor::class,
         ];
     }
@@ -67,17 +59,4 @@ class Kematian extends Model
         return $this->belongsTo(Desa::class);
     }
 
-    public function kepalaDesa(): BelongsTo
-    {
-        return $this->belongsTo(AparatDesa::class, 'kepala_desa_id');
-    }
-
-    /**
-     * Generate nomor surat kematian otomatis.
-     * Format: SK/KMT/YYYY/MM/XXXXX
-     */
-    public static function generateNoSurat(): string
-    {
-        return SuratHelper::generateNoSuratKematian();
-    }
 }

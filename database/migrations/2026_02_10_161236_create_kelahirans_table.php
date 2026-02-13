@@ -14,18 +14,20 @@ return new class extends Migration
         Schema::create('kelahirans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('desa_id')->constrained('desas')->cascadeOnDelete();
+
+            // Data Bayi
             $table->string('nama_bayi');
             $table->string('nik_bayi', 16)->nullable()->unique();
             $table->string('jenis_kelamin');
             $table->date('tanggal_lahir');
             $table->time('waktu_lahir')->nullable();
             $table->string('tempat_lahir');
-            $table->foreignId('ayah_id')->nullable()->constrained('penduduks')->nullOnDelete();
-            $table->foreignId('ibu_id')->nullable()->constrained('penduduks')->nullOnDelete();
             $table->decimal('berat_lahir', 5, 2)->nullable()->comment('dalam kilogram');
             $table->decimal('panjang_lahir', 5, 2)->nullable()->comment('dalam centimeter');
-            $table->string('no_surat_kelahiran')->nullable()->unique();
-            $table->text('keterangan')->nullable();
+
+            // Data Orang Tua
+            $table->foreignId('ayah_id')->nullable()->constrained('penduduks')->nullOnDelete();
+            $table->foreignId('ibu_id')->nullable()->constrained('penduduks')->nullOnDelete();
 
             // Data Pelapor
             $table->string('nama_pelapor');
@@ -34,15 +36,10 @@ return new class extends Migration
             $table->text('alamat_pelapor')->nullable();
             $table->string('telepon_pelapor')->nullable();
 
-            // Tanda Tangan & Dokumen
-            $table->text('ttd_pelapor')->nullable()->comment('Signature pad data');
-            $table->string('foto_ttd_pelapor')->nullable()->comment('Upload foto tanda tangan');
+            // Dokumen Pendukung
             $table->string('foto_surat_rs')->nullable()->comment('Surat keterangan lahir dari RS/Bidan/Puskesmas');
 
-            // Penandatangan
-            $table->foreignId('kepala_desa_id')->nullable()->constrained('aparat_desas')->nullOnDelete();
-            $table->date('tanggal_surat')->nullable();
-
+            $table->text('keterangan')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
