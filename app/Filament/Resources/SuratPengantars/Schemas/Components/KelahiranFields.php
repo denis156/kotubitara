@@ -73,6 +73,7 @@ class KelahiranFields
                 ->options(JenisKelamin::class)
                 ->native(false)
                 ->disabled()
+                ->dehydrated()
                 ->hint('Otomatis')
                 ->helperText('Otomatis terisi dari data kelahiran yang dipilih.')
                 ->visible(fn (Get $get): bool => self::isVisible($get)),
