@@ -33,7 +33,7 @@ class AparatDesaResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'nama_lengkap';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
     {

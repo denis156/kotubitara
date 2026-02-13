@@ -31,7 +31,7 @@ class DesaResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'nama_desa';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 4;
 
     protected static bool $isScopedToTenant = false;
 
