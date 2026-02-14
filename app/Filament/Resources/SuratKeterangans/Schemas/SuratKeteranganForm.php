@@ -156,12 +156,6 @@ class SuratKeteranganForm
                         ->schema([
                             SignaturePad::make('data_tambahan.ttd_pemohon')
                                 ->label('Tanda Tangan Digital Pemohon/Pelapor')
-                                ->backgroundColor('rgba(250, 250, 250, 1)')
-                                ->backgroundColorOnDark('rgba(30, 30, 30, 1)')
-                                ->exportBackgroundColor('rgb(255, 255, 255)')
-                                ->penColor('#000')
-                                ->penColorOnDark('#fff')
-                                ->exportPenColor('rgb(0, 0, 0)')
                                 ->dotSize(2.0)
                                 ->lineMinWidth(0.5)
                                 ->lineMaxWidth(2.5)
