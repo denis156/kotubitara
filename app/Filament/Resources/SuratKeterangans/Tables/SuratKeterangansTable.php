@@ -12,13 +12,13 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ViewAction;
 use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class SuratKeterangansTable
 {
@@ -43,32 +43,12 @@ class SuratKeterangansTable
                     ->sortable()
                     ->alignment('center'),
 
-                TextColumn::make('nama_pemohon')
-                    ->label('Nama Pemohon')
-                    ->searchable()
-                    ->sortable()
-                    ->weight('medium'),
-
-                TextColumn::make('nik_pemohon')
-                    ->label('NIK Pemohon')
-                    ->searchable()
-                    ->fontFamily('mono')
-                    ->copyable()
-                    ->copyMessage('NIK disalin!')
-                    ->toggleable(),
-
-                TextColumn::make('keperluan')
-                    ->label('Keperluan')
-                    ->searchable()
-                    ->limit(30)
-                    ->toggleable()
-                    ->placeholder('-'),
-
                 TextColumn::make('desa.nama_desa')
                     ->label('Desa')
+                    ->formatStateUsing(fn (string $state): string => Str::title(strtolower($state)))
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('kepalaDesa.nama_lengkap')
                     ->label('Kepala Desa')
@@ -82,17 +62,39 @@ class SuratKeterangansTable
                     ->sortable()
                     ->toggleable(),
 
+                TextColumn::make('status_ttd')
+                    ->label('Status TTD')
+                    ->state(function ($record) {
+                        $hasTTD = isset($record->data_tambahan['ttd_pemohon']) || isset($record->data_tambahan['foto_ttd_pemohon']);
+
+                        return $hasTTD ? 'Sudah TTD' : 'Belum TTD';
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Sudah TTD' => 'success',
+                        'Belum TTD' => 'warning',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'Sudah TTD' => 'heroicon-o-check-circle',
+                        'Belum TTD' => 'heroicon-o-exclamation-circle',
+                    })
+                    ->alignment('center')
+                    ->toggleable(),
+
                 TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->limit(30)
+                    ->tooltip(fn ($record) => $record->keterangan)
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->wrap(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y H:i')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->description(fn ($record) => $record->created_at->diffForHumans()),
 
                 TextColumn::make('updated_at')
                     ->label('Diperbarui')
@@ -105,14 +107,33 @@ class SuratKeterangansTable
                     ->label('Jenis Surat')
                     ->options(JenisSuratKeterangan::class)
                     ->native(false)
+                    ->multiple()
                     ->indicator('Jenis Surat'),
 
-                SelectFilter::make('desa')
-                    ->label('Desa')
-                    ->relationship('desa', 'nama_desa')
-                    ->searchable()
-                    ->preload()
-                    ->indicator('Desa'),
+                SelectFilter::make('status_ttd')
+                    ->label('Status TTD')
+                    ->options([
+                        'sudah' => 'Sudah TTD',
+                        'belum' => 'Belum TTD',
+                    ])
+                    ->native(false)
+                    ->query(function ($query, $data) {
+                        if ($data['value'] === 'sudah') {
+                            return $query->where(function ($q) {
+                                $q->whereNotNull('data_tambahan->ttd_pemohon')
+                                    ->orWhereNotNull('data_tambahan->foto_ttd_pemohon');
+                            });
+                        }
+                        if ($data['value'] === 'belum') {
+                            return $query->where(function ($q) {
+                                $q->whereNull('data_tambahan->ttd_pemohon')
+                                    ->whereNull('data_tambahan->foto_ttd_pemohon');
+                            });
+                        }
+
+                        return $query;
+                    })
+                    ->indicator('Status TTD'),
 
                 TrashedFilter::make()
                     ->label('Status')
@@ -131,15 +152,10 @@ class SuratKeterangansTable
                     ->label('Kolom')
             )
             ->recordActions([
-                ViewAction::make()
-                    ->label('Lihat')
-                    ->icon('heroicon-o-eye')
-                    ->color('info')
-                    ->button(),
                 EditAction::make()
                     ->label('Ubah')
                     ->icon('heroicon-o-pencil')
-                    ->color('warning')
+                    ->color('info')
                     ->button(),
                 DeleteAction::make()
                     ->label('Hapus')

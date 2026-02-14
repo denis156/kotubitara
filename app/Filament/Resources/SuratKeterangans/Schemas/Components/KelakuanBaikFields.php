@@ -20,25 +20,27 @@ class KelakuanBaikFields
         return [
             TextInput::make('data_tambahan.pekerjaan')
                 ->label('Pekerjaan')
-                ->visible(fn (Get $get) => static::isVisible($get))
-                ->required(fn (Get $get) => static::isVisible($get))
+                ->visible(fn (Get $get) => static::isVisible($get) && ! $get('penduduk_id'))
+                ->required(fn (Get $get) => static::isVisible($get) && ! $get('penduduk_id'))
                 ->maxLength(255)
                 ->validationMessages([
                     'required' => 'Pekerjaan wajib diisi.',
                     'max' => 'Pekerjaan maksimal 255 karakter.',
                 ])
+                ->helperText('Pekerjaan otomatis diambil dari data penduduk jika memilih penduduk terdaftar')
                 ->columnSpanFull(),
 
             Textarea::make('data_tambahan.alamat_lengkap')
                 ->label('Alamat Lengkap')
-                ->visible(fn (Get $get) => static::isVisible($get))
-                ->required(fn (Get $get) => static::isVisible($get))
+                ->visible(fn (Get $get) => static::isVisible($get) && ! $get('penduduk_id'))
+                ->required(fn (Get $get) => static::isVisible($get) && ! $get('penduduk_id'))
                 ->rows(3)
                 ->maxLength(500)
                 ->validationMessages([
                     'required' => 'Alamat lengkap wajib diisi.',
                     'max' => 'Alamat maksimal 500 karakter.',
                 ])
+                ->helperText('Alamat otomatis diambil dari Kartu Keluarga jika memilih penduduk terdaftar')
                 ->columnSpanFull(),
 
             Select::make('data_tambahan.keperluan_surat')
@@ -67,6 +69,7 @@ class KelakuanBaikFields
                 ->default('Yang bersangkutan berkelakuan baik, tidak pernah terlibat tindak pidana, dan merupakan warga yang taat pada peraturan yang berlaku.')
                 ->helperText('Deskripsi kelakuan yang bersangkutan')
                 ->columnSpanFull(),
+
         ];
     }
 

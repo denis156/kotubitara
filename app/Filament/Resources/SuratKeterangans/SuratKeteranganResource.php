@@ -7,6 +7,7 @@ namespace App\Filament\Resources\SuratKeterangans;
 use App\Filament\Resources\SuratKeterangans\Pages\CreateSuratKeterangan;
 use App\Filament\Resources\SuratKeterangans\Pages\EditSuratKeterangan;
 use App\Filament\Resources\SuratKeterangans\Pages\ListSuratKeterangans;
+use App\Filament\Resources\SuratKeterangans\Pages\ViewSuratKeterangan;
 use App\Filament\Resources\SuratKeterangans\Schemas\SuratKeteranganForm;
 use App\Filament\Resources\SuratKeterangans\Tables\SuratKeterangansTable;
 use App\Models\SuratKeterangan;
@@ -59,6 +60,7 @@ class SuratKeteranganResource extends Resource
         return [
             'index' => ListSuratKeterangans::route('/'),
             'create' => CreateSuratKeterangan::route('/create'),
+            'view' => ViewSuratKeterangan::route('/{record}'),
             'edit' => EditSuratKeterangan::route('/{record}/edit'),
         ];
     }

@@ -25,7 +25,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
@@ -54,11 +53,18 @@ class SuratKeteranganForm
         return $schema
             ->components([
                 Wizard::make([
-                    // Step 1: Pilih Jenis Surat & Data Pemohon
-                    Step::make('Jenis Surat & Pemohon')
-                        ->description('Pilih jenis surat dan data pemohon')
+                    // Step 1: Pilih Jenis Surat & Data Pemohon/Pelapor
+                    Step::make('Jenis Surat & Pemohon/Pelapor')
+                        ->description('Pilih jenis surat dan data pemohon/pelapor')
                         ->icon('heroicon-o-document-text')
                         ->schema([
+                            TextInput::make('no_surat')
+                                ->label('Nomor Surat')
+                                ->readOnly()
+                                ->hint('Otomatis')
+                                ->helperText('Nomor surat akan digenerate otomatis oleh sistem')
+                                ->columnSpanFull(),
+
                             Select::make('jenis_surat')
                                 ->label('Jenis Surat Keterangan')
                                 ->options(JenisSuratKeterangan::class)
@@ -75,6 +81,7 @@ class SuratKeteranganForm
                                 ->required()
                                 ->searchable()
                                 ->preload()
+                                ->live()
                                 ->default(fn () => DesaFieldHelper::getDefaultDesaId())
                                 ->disabled(fn () => DesaFieldHelper::shouldDisableDesaField())
                                 ->dehydrated()
@@ -82,39 +89,39 @@ class SuratKeteranganForm
                                 ->columnSpanFull(),
 
                             Select::make('penduduk_id')
-                                ->label('Pilih Pemohon')
-                                ->relationship('penduduk', 'nama_lengkap')
+                                ->label('Pilih Pemohon/Pelapor (Penduduk Terdaftar)')
+                                ->relationship(
+                                    name: 'penduduk',
+                                    titleAttribute: 'nama_lengkap',
+                                    modifyQueryUsing: fn ($query, Get $get) => $query->when(
+                                        $get('desa_id'),
+                                        fn ($q, $desaId) => $q->where('desa_id', $desaId)
+                                    )
+                                )
                                 ->searchable(['nama_lengkap', 'nik'])
                                 ->preload()
-                                ->required()
                                 ->live()
-                                ->afterStateUpdated(function ($state, Set $set) {
-                                    if ($state) {
-                                        $penduduk = \App\Models\Penduduk::find($state);
-                                        if ($penduduk) {
-                                            $set('nama_pemohon', $penduduk->nama_lengkap);
-                                            $set('nik_pemohon', $penduduk->nik);
-                                        }
-                                    }
-                                })
-                                ->helperText('Cari berdasarkan nama atau NIK')
+                                ->hint('Opsional')
+                                ->helperText('Cari berdasarkan nama atau NIK. Hanya menampilkan penduduk dari desa yang dipilih.')
+                                ->visible(fn (Get $get) => static::isJenisSurat($get('jenis_surat'), JenisSuratKeterangan::KEMATIAN) === false)
                                 ->columnSpanFull(),
 
-                            TextInput::make('nama_pemohon')
-                                ->label('Nama Pemohon')
-                                ->required()
+                            TextInput::make('data_tambahan.nama_pemohon_manual')
+                                ->label('Nama Pemohon/Pelapor')
+                                ->visible(fn (Get $get) => static::isJenisSurat($get('jenis_surat'), JenisSuratKeterangan::KEMATIAN) === false && ! $get('penduduk_id'))
+                                ->required(fn (Get $get) => static::isJenisSurat($get('jenis_surat'), JenisSuratKeterangan::KEMATIAN) === false && ! $get('penduduk_id'))
                                 ->maxLength(255)
-                                ->readOnly()
-                                ->hint('Otomatis')
-                                ->helperText('Otomatis terisi dari data penduduk'),
+                                ->helperText('Isi manual jika pemohon/pelapor bukan penduduk terdaftar')
+                                ->columnSpanFull(),
 
-                            TextInput::make('nik_pemohon')
-                                ->label('NIK Pemohon')
-                                ->required()
+                            TextInput::make('data_tambahan.nik_pemohon_manual')
+                                ->label('NIK Pemohon/Pelapor')
+                                ->visible(fn (Get $get) => static::isJenisSurat($get('jenis_surat'), JenisSuratKeterangan::KEMATIAN) === false && ! $get('penduduk_id'))
+                                ->hint('Opsional')
                                 ->maxLength(16)
-                                ->readOnly()
-                                ->hint('Otomatis')
-                                ->helperText('Otomatis terisi dari data penduduk'),
+                                ->length(16)
+                                ->helperText('NIK pemohon/pelapor (16 digit)')
+                                ->columnSpanFull(),
 
                             TextInput::make('keperluan')
                                 ->label('Keperluan')
@@ -142,13 +149,13 @@ class SuratKeteranganForm
                             ...KematianFields::make(),
                         ]),
 
-                    // Step 3: Tanda Tangan & Dokumen
-                    Step::make('Dokumen & Tanda Tangan')
-                        ->description('Tanda tangan pemohon dan dokumen pendukung')
-                        ->icon('heroicon-o-document-arrow-up')
+                    // Step 3: Tanda Tangan
+                    Step::make('Tanda Tangan')
+                        ->description('Tanda tangan pemohon/pelapor')
+                        ->icon('heroicon-o-pencil')
                         ->schema([
-                            SignaturePad::make('ttd_pemohon')
-                                ->label('Tanda Tangan Digital Pemohon')
+                            SignaturePad::make('data_tambahan.ttd_pemohon')
+                                ->label('Tanda Tangan Digital Pemohon/Pelapor')
                                 ->backgroundColor('rgba(250, 250, 250, 1)')
                                 ->backgroundColorOnDark('rgba(30, 30, 30, 1)')
                                 ->exportBackgroundColor('rgb(255, 255, 255)')
@@ -172,8 +179,8 @@ class SuratKeteranganForm
                                 ->undoAction(fn (Action $action) => $action->button()->icon('heroicon-o-arrow-uturn-left'))
                                 ->doneAction(fn (Action $action) => $action->button()->icon('heroicon-o-check-circle')),
 
-                            FileUpload::make('foto_ttd_pemohon')
-                                ->label('Foto Tanda Tangan Pemohon')
+                            FileUpload::make('data_tambahan.foto_ttd_pemohon')
+                                ->label('Foto Tanda Tangan Pemohon/Pelapor')
                                 ->image()
                                 ->imageEditor()
                                 ->disk('public')
@@ -181,25 +188,11 @@ class SuratKeteranganForm
                                 ->visibility('public')
                                 ->maxSize(2048)
                                 ->hint('Opsional')
-                                ->helperText('Alternatif: Upload gambar tanda tangan (maks. 2MB).')
+                                ->helperText('Alternatif: Upload gambar tanda tangan pemohon/pelapor (maks. 2MB).')
                                 ->columnSpanFull()
                                 ->validationMessages([
                                     'max' => 'Ukuran file tidak boleh lebih dari 2MB.',
                                 ]),
-
-                            FileUpload::make('dokumen_pendukung')
-                                ->label('Dokumen Pendukung')
-                                ->multiple()
-                                ->image()
-                                ->imageEditor()
-                                ->disk('public')
-                                ->directory('surat-keterangan/dokumen')
-                                ->visibility('public')
-                                ->maxSize(2048)
-                                ->maxFiles(5)
-                                ->hint('Opsional')
-                                ->helperText('Upload dokumen pendukung (KTP, KK, dll). Maks 5 file @ 2MB')
-                                ->columnSpanFull(),
 
                             Select::make('kepala_desa_id')
                                 ->label('Kepala Desa yang Menandatangani')

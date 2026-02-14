@@ -24,8 +24,6 @@ class SuratKeterangan extends Model
         'kematian_id',
         'jenis_surat',
         'keperluan',
-        'nama_pemohon',
-        'nik_pemohon',
         'data_domisili',
         'data_usaha',
         'data_ekonomi',
@@ -33,10 +31,6 @@ class SuratKeterangan extends Model
         'data_ahli_waris',
         'data_kematian',
         'data_tambahan',
-        'data_pelapor',
-        'ttd_pemohon',
-        'foto_ttd_pemohon',
-        'dokumen_pendukung',
         'no_surat',
         'tanggal_surat',
         'kepala_desa_id',
@@ -55,8 +49,6 @@ class SuratKeterangan extends Model
             'data_ahli_waris' => 'array',
             'data_kematian' => 'array',
             'data_tambahan' => 'array',
-            'data_pelapor' => 'array',
-            'dokumen_pendukung' => 'array',
         ];
     }
 

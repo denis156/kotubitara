@@ -40,36 +40,23 @@ class SuratKeteranganObserver
             );
         }
 
-        // Handle file cleanup for foto_ttd_pemohon
-        if ($suratKeterangan->isDirty('foto_ttd_pemohon')) {
-            $oldFotoTtd = $suratKeterangan->getOriginal('foto_ttd_pemohon');
-            if ($oldFotoTtd && Storage::disk('public')->exists($oldFotoTtd)) {
-                Storage::disk('public')->delete($oldFotoTtd);
-            }
-        }
+        // Handle file cleanup for data_tambahan JSON field (ttd, foto_ttd, dokumen)
+        if ($suratKeterangan->isDirty('data_tambahan')) {
+            $oldDataTambahan = $suratKeterangan->getOriginal('data_tambahan');
+            $newDataTambahan = $suratKeterangan->data_tambahan;
 
-        // Handle file cleanup for data_pelapor JSON field
-        if ($suratKeterangan->isDirty('data_pelapor')) {
-            $oldDataPelapor = $suratKeterangan->getOriginal('data_pelapor');
-            $newDataPelapor = $suratKeterangan->data_pelapor;
-
-            // Delete old foto_ttd if changed
-            if (isset($oldDataPelapor['foto_ttd']) &&
-                ($oldDataPelapor['foto_ttd'] ?? null) !== ($newDataPelapor['foto_ttd'] ?? null)) {
-                if (Storage::disk('public')->exists($oldDataPelapor['foto_ttd'])) {
-                    Storage::disk('public')->delete($oldDataPelapor['foto_ttd']);
+            // Delete old foto_ttd_pemohon if changed
+            if (isset($oldDataTambahan['foto_ttd_pemohon']) &&
+                ($oldDataTambahan['foto_ttd_pemohon'] ?? null) !== ($newDataTambahan['foto_ttd_pemohon'] ?? null)) {
+                if (Storage::disk('public')->exists($oldDataTambahan['foto_ttd_pemohon'])) {
+                    Storage::disk('public')->delete($oldDataTambahan['foto_ttd_pemohon']);
                 }
             }
-        }
 
-        // Handle file cleanup for dokumen_pendukung JSON field
-        if ($suratKeterangan->isDirty('dokumen_pendukung')) {
-            $oldDokumen = $suratKeterangan->getOriginal('dokumen_pendukung');
-            $newDokumen = $suratKeterangan->dokumen_pendukung;
-
-            if (is_array($oldDokumen)) {
-                foreach ($oldDokumen as $key => $oldFile) {
-                    // Delete if file is removed or changed
+            // Delete old dokumen_pendukung if changed
+            if (isset($oldDataTambahan['dokumen_pendukung']) && is_array($oldDataTambahan['dokumen_pendukung'])) {
+                $newDokumen = $newDataTambahan['dokumen_pendukung'] ?? [];
+                foreach ($oldDataTambahan['dokumen_pendukung'] as $key => $oldFile) {
                     if (! isset($newDokumen[$key]) || $newDokumen[$key] !== $oldFile) {
                         if (Storage::disk('public')->exists($oldFile)) {
                             Storage::disk('public')->delete($oldFile);
@@ -110,24 +97,18 @@ class SuratKeteranganObserver
      */
     private function deleteFiles(SuratKeterangan $suratKeterangan): void
     {
-        // Delete foto_ttd_pemohon
-        if ($suratKeterangan->foto_ttd_pemohon) {
-            if (Storage::disk('public')->exists($suratKeterangan->foto_ttd_pemohon)) {
-                Storage::disk('public')->delete($suratKeterangan->foto_ttd_pemohon);
-            }
-        }
-
-        // Delete foto_ttd from data_pelapor
-        if (isset($suratKeterangan->data_pelapor['foto_ttd'])) {
-            $fotoTtd = $suratKeterangan->data_pelapor['foto_ttd'];
+        // Delete foto_ttd_pemohon from data_tambahan
+        if (isset($suratKeterangan->data_tambahan['foto_ttd_pemohon'])) {
+            $fotoTtd = $suratKeterangan->data_tambahan['foto_ttd_pemohon'];
             if (Storage::disk('public')->exists($fotoTtd)) {
                 Storage::disk('public')->delete($fotoTtd);
             }
         }
 
-        // Delete all dokumen_pendukung
-        if (is_array($suratKeterangan->dokumen_pendukung)) {
-            foreach ($suratKeterangan->dokumen_pendukung as $file) {
+        // Delete all dokumen_pendukung from data_tambahan
+        if (isset($suratKeterangan->data_tambahan['dokumen_pendukung']) &&
+            is_array($suratKeterangan->data_tambahan['dokumen_pendukung'])) {
+            foreach ($suratKeterangan->data_tambahan['dokumen_pendukung'] as $file) {
                 if (Storage::disk('public')->exists($file)) {
                     Storage::disk('public')->delete($file);
                 }

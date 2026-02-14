@@ -222,51 +222,40 @@ class DatabaseSeeder extends Seeder
         }
         $this->command->info('✅ Created '.$totalMutasi.' mutasi penduduk records');
 
-        // Create Surat Keterangan (2-4 per desa)
+        // Create Surat Keterangan (3-6 per desa with various types)
         $this->command->info('📄 Creating Surat Keterangan records...');
         $totalSuratKeterangan = 0;
         foreach ($desas as $desa) {
-            $jumlah = rand(2, 4);
+            $jumlah = rand(3, 6);
             $pendudukDiDesa = Penduduk::where('desa_id', $desa->id)->inRandomOrder()->limit($jumlah)->get();
             $kepalaDesa = AparatDesa::where('desa_id', $desa->id)
                 ->where('jabatan', JabatanAparatDesa::KEPALA_DESA)
                 ->where('status', 'aktif')
                 ->first();
 
-            foreach ($pendudukDiDesa as $penduduk) {
-                // Random jenis surat (domisili, usaha, kematian, dll)
-                $jenisSurat = rand(1, 3);
+            $jenisSuratList = [
+                'domisili',
+                'usaha',
+                'tidakMampu',
+                'penghasilan',
+                'belumMenikah',
+                'sudahMenikah',
+                'ahliWaris',
+                'kehilangan',
+                'jandaDuda',
+                'kelakuanBaik',
+            ];
 
-                if ($jenisSurat === 1) {
-                    SuratKeterangan::factory()->domisili()->create([
-                        'desa_id' => $desa->id,
-                        'penduduk_id' => $penduduk->id,
-                        'nama_pemohon' => $penduduk->nama_lengkap,
-                        'nik_pemohon' => $penduduk->nik,
-                        'kepala_desa_id' => $kepalaDesa?->id,
-                    ]);
-                } elseif ($jenisSurat === 2) {
-                    SuratKeterangan::factory()->usaha()->create([
-                        'desa_id' => $desa->id,
-                        'penduduk_id' => $penduduk->id,
-                        'nama_pemohon' => $penduduk->nama_lengkap,
-                        'nik_pemohon' => $penduduk->nik,
-                        'kepala_desa_id' => $kepalaDesa?->id,
-                    ]);
-                } else {
-                    // Kematian - ambil dari data kematian yang ada
-                    $kematian = Kematian::where('desa_id', $desa->id)->inRandomOrder()->first();
-                    if ($kematian) {
-                        SuratKeterangan::factory()->kematian()->create([
-                            'desa_id' => $desa->id,
-                            'penduduk_id' => $kematian->penduduk_id,
-                            'kematian_id' => $kematian->id,
-                            'nama_pemohon' => $kematian->nama_pelapor,
-                            'nik_pemohon' => $kematian->nik_pelapor ?? fake()->numerify('################'),
-                            'kepala_desa_id' => $kepalaDesa?->id,
-                        ]);
-                    }
-                }
+            foreach ($pendudukDiDesa as $index => $penduduk) {
+                // Cycle through different types of surat
+                $jenisSurat = $jenisSuratList[$index % count($jenisSuratList)];
+
+                SuratKeterangan::factory()->{$jenisSurat}()->create([
+                    'desa_id' => $desa->id,
+                    'penduduk_id' => $penduduk->id,
+                    'kepala_desa_id' => $kepalaDesa?->id,
+                ]);
+
                 $totalSuratKeterangan++;
             }
         }
@@ -284,23 +273,19 @@ class DatabaseSeeder extends Seeder
                 ->first();
 
             foreach ($pendudukDiDesa as $penduduk) {
-                // Random jenis surat (skck, nikah, kelahiran, pindah)
-                $jenisSurat = rand(1, 4);
+                // Random jenis surat (skck, nikah, kelahiran, pindah, izin_keramaian, kredit_bank)
+                $jenisSurat = rand(1, 6);
 
                 if ($jenisSurat === 1) {
                     SuratPengantar::factory()->skck()->create([
                         'desa_id' => $desa->id,
                         'penduduk_id' => $penduduk->id,
-                        'nama_pemohon' => $penduduk->nama_lengkap,
-                        'nik_pemohon' => $penduduk->nik,
                         'kepala_desa_id' => $kepalaDesa?->id,
                     ]);
                 } elseif ($jenisSurat === 2) {
                     SuratPengantar::factory()->nikah()->create([
                         'desa_id' => $desa->id,
                         'penduduk_id' => $penduduk->id,
-                        'nama_pemohon' => $penduduk->nama_lengkap,
-                        'nik_pemohon' => $penduduk->nik,
                         'kepala_desa_id' => $kepalaDesa?->id,
                     ]);
                 } elseif ($jenisSurat === 3) {
@@ -311,17 +296,25 @@ class DatabaseSeeder extends Seeder
                             'desa_id' => $desa->id,
                             'penduduk_id' => $kelahiran->ayah_id ?? $penduduk->id,
                             'kelahiran_id' => $kelahiran->id,
-                            'nama_pemohon' => $kelahiran->nama_pelapor,
-                            'nik_pemohon' => $kelahiran->nik_pelapor ?? fake()->numerify('################'),
                             'kepala_desa_id' => $kepalaDesa?->id,
                         ]);
                     }
-                } else {
+                } elseif ($jenisSurat === 4) {
                     SuratPengantar::factory()->pindah()->create([
                         'desa_id' => $desa->id,
                         'penduduk_id' => $penduduk->id,
-                        'nama_pemohon' => $penduduk->nama_lengkap,
-                        'nik_pemohon' => $penduduk->nik,
+                        'kepala_desa_id' => $kepalaDesa?->id,
+                    ]);
+                } elseif ($jenisSurat === 5) {
+                    SuratPengantar::factory()->izinKeramaian()->create([
+                        'desa_id' => $desa->id,
+                        'penduduk_id' => $penduduk->id,
+                        'kepala_desa_id' => $kepalaDesa?->id,
+                    ]);
+                } else {
+                    SuratPengantar::factory()->kreditBank()->create([
+                        'desa_id' => $desa->id,
+                        'penduduk_id' => $penduduk->id,
                         'kepala_desa_id' => $kepalaDesa?->id,
                     ]);
                 }

@@ -6,6 +6,7 @@ namespace App\Filament\Resources\SuratKeterangans\Schemas\Components;
 
 use App\Enums\JenisSuratKeterangan;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 
@@ -52,6 +53,21 @@ class SudahMenikahFields
                 ->visible(fn (Get $get) => static::isVisible($get))
                 ->hint('Opsional')
                 ->maxLength(255),
+
+            FileUpload::make('data_tambahan.dokumen_pendukung')
+                ->label('Dokumen Pendukung')
+                ->visible(fn (Get $get) => static::isVisible($get))
+                ->multiple()
+                ->image()
+                ->imageEditor()
+                ->disk('public')
+                ->directory('surat-keterangan/dokumen')
+                ->visibility('public')
+                ->maxSize(2048)
+                ->maxFiles(5)
+                ->hint('Opsional')
+                ->helperText('Upload buku nikah atau akta nikah sebagai bukti pernikahan. Maks 5 file @ 2MB')
+                ->columnSpanFull(),
         ];
     }
 

@@ -49,12 +49,42 @@ class KematianFields
                             $set('data_kematian.tempat_pemakaman', $kematian->tempat_pemakaman);
                             $set('data_kematian.tanggal_pemakaman', $kematian->tanggal_pemakaman?->format('Y-m-d'));
                             $set('data_kematian.keterangan_tambahan', $kematian->keterangan);
+
+                            // Auto-fill pelapor dari data kematian jika ada
+                            $set('data_kematian.nama_pelapor', $kematian->nama_pelapor);
+                            $set('data_kematian.nik_pelapor', $kematian->nik_pelapor);
+                            $set('data_kematian.hubungan_pelapor', $kematian->hubungan_pelapor);
                         }
                     }
                 })
                 ->helperText('Pilih dari data kematian yang sudah ada di desa ini. Field di bawah akan terisi otomatis.')
                 ->visible(fn (Get $get): bool => self::isVisible($get))
                 ->columnSpanFull(),
+
+            TextInput::make('data_kematian.nama_pelapor')
+                ->label('Nama Pelapor')
+                ->maxLength(255)
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
+                ->visible(fn (Get $get): bool => self::isVisible($get))
+                ->columnSpanFull(),
+
+            TextInput::make('data_kematian.nik_pelapor')
+                ->label('NIK Pelapor')
+                ->maxLength(16)
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
+                ->visible(fn (Get $get): bool => self::isVisible($get)),
+
+            TextInput::make('data_kematian.hubungan_pelapor')
+                ->label('Hubungan Pelapor dengan Almarhum/Almarhumah')
+                ->maxLength(255)
+                ->readOnly()
+                ->hint('Otomatis')
+                ->helperText('Otomatis terisi dari data kematian yang dipilih.')
+                ->visible(fn (Get $get): bool => self::isVisible($get)),
 
             DatePicker::make('data_kematian.tanggal_meninggal')
                 ->label('Tanggal Meninggal')
@@ -118,6 +148,7 @@ class KematianFields
                 ->helperText('Otomatis terisi dari data kematian yang dipilih.')
                 ->visible(fn (Get $get): bool => self::isVisible($get))
                 ->columnSpanFull(),
+
         ];
     }
 

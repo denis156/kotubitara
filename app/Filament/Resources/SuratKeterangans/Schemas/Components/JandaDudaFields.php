@@ -6,6 +6,7 @@ namespace App\Filament\Resources\SuratKeterangans\Schemas\Components;
 
 use App\Enums\JenisSuratKeterangan;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
@@ -32,38 +33,59 @@ class JandaDudaFields
                 ])
                 ->columnSpanFull(),
 
-            TextInput::make('data_pernikahan.nama_pasangan_almarhum')
-                ->label('Nama Pasangan (Almarhum/Almarhumah)')
+            Select::make('data_pernikahan.sebab')
+                ->label('Sebab')
+                ->visible(fn (Get $get) => static::isVisible($get))
+                ->required(fn (Get $get) => static::isVisible($get))
+                ->options([
+                    'cerai_mati' => 'Cerai Mati (Ditinggal Meninggal)',
+                    'cerai_hidup' => 'Cerai Hidup (Bercerai)',
+                ])
+                ->native(false)
+                ->validationMessages([
+                    'required' => 'Sebab wajib dipilih.',
+                ])
+                ->helperText('Alasan menjadi janda/duda')
+                ->columnSpanFull(),
+
+            TextInput::make('data_pernikahan.nama_mantan_pasangan')
+                ->label('Nama Mantan Pasangan')
                 ->visible(fn (Get $get) => static::isVisible($get))
                 ->required(fn (Get $get) => static::isVisible($get))
                 ->maxLength(255)
                 ->validationMessages([
-                    'required' => 'Nama pasangan almarhum wajib diisi.',
+                    'required' => 'Nama mantan pasangan wajib diisi.',
                     'max' => 'Nama pasangan maksimal 255 karakter.',
                 ])
                 ->columnSpanFull(),
 
-            DatePicker::make('data_pernikahan.tanggal_meninggal_pasangan')
-                ->label('Tanggal Pasangan Meninggal')
+            DatePicker::make('data_pernikahan.tanggal_cerai_atau_meninggal')
+                ->label('Tanggal Cerai/Meninggal')
                 ->visible(fn (Get $get) => static::isVisible($get))
                 ->required(fn (Get $get) => static::isVisible($get))
                 ->native(false)
                 ->displayFormat('d/m/Y')
                 ->maxDate(now())
                 ->validationMessages([
-                    'required' => 'Tanggal meninggal wajib diisi.',
+                    'required' => 'Tanggal wajib diisi.',
                     'before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
                 ])
+                ->helperText('Tanggal pasangan meninggal atau tanggal perceraian')
                 ->columnSpanFull(),
 
-            DatePicker::make('data_pernikahan.tanggal_menikah')
-                ->label('Tanggal Menikah (Dahulu)')
+            FileUpload::make('data_tambahan.dokumen_pendukung')
+                ->label('Dokumen Pendukung')
                 ->visible(fn (Get $get) => static::isVisible($get))
+                ->multiple()
+                ->image()
+                ->imageEditor()
+                ->disk('public')
+                ->directory('surat-keterangan/dokumen')
+                ->visibility('public')
+                ->maxSize(2048)
+                ->maxFiles(5)
                 ->hint('Opsional')
-                ->native(false)
-                ->displayFormat('d/m/Y')
-                ->maxDate(now())
-                ->helperText('Tanggal pernikahan dengan pasangan yang telah meninggal')
+                ->helperText('Upload akta kematian (cerai mati) atau surat cerai (cerai hidup). Maks 5 file @ 2MB')
                 ->columnSpanFull(),
         ];
     }

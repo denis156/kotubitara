@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Resources\SuratKeterangans\Schemas\Components;
 
 use App\Enums\JenisSuratKeterangan;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 
@@ -18,21 +20,30 @@ class PenghasilanFields
         return [
             TextInput::make('data_ekonomi.pekerjaan')
                 ->label('Pekerjaan')
-                ->visible(fn (Get $get) => static::isVisible($get))
-                ->required(fn (Get $get) => static::isVisible($get))
+                ->visible(fn (Get $get) => static::isVisible($get) && ! $get('penduduk_id'))
+                ->required(fn (Get $get) => static::isVisible($get) && ! $get('penduduk_id'))
                 ->maxLength(255)
                 ->validationMessages([
                     'required' => 'Pekerjaan wajib diisi.',
                     'max' => 'Pekerjaan maksimal 255 karakter.',
                 ])
+                ->helperText('Pekerjaan otomatis diambil dari data penduduk jika memilih penduduk terdaftar')
                 ->columnSpanFull(),
 
-            TextInput::make('data_ekonomi.nama_perusahaan')
-                ->label('Nama Perusahaan/Instansi')
+            TextInput::make('data_ekonomi.jabatan')
+                ->label('Jabatan')
                 ->visible(fn (Get $get) => static::isVisible($get))
                 ->hint('Opsional')
                 ->maxLength(255)
-                ->helperText('Jika bekerja di perusahaan/instansi')
+                ->helperText('Jabatan atau posisi pekerjaan')
+                ->columnSpanFull(),
+
+            TextInput::make('data_ekonomi.tempat_bekerja')
+                ->label('Tempat Bekerja')
+                ->visible(fn (Get $get) => static::isVisible($get))
+                ->hint('Opsional')
+                ->maxLength(255)
+                ->helperText('Nama perusahaan/instansi tempat bekerja')
                 ->columnSpanFull(),
 
             TextInput::make('data_ekonomi.penghasilan_perbulan')
@@ -47,13 +58,36 @@ class PenghasilanFields
                 ])
                 ->helperText('Penghasilan rata-rata per bulan'),
 
-            TextInput::make('data_ekonomi.penghasilan_pertahun')
-                ->label('Penghasilan Per Tahun')
+            Select::make('data_ekonomi.sumber_penghasilan')
+                ->label('Sumber Penghasilan')
                 ->visible(fn (Get $get) => static::isVisible($get))
                 ->hint('Opsional')
-                ->numeric()
-                ->prefix('Rp')
-                ->helperText('Total penghasilan per tahun'),
+                ->options([
+                    'gaji_tetap' => 'Gaji Tetap',
+                    'gaji_tidak_tetap' => 'Gaji Tidak Tetap',
+                    'usaha_sendiri' => 'Usaha Sendiri',
+                    'wiraswasta' => 'Wiraswasta',
+                    'honorarium' => 'Honorarium',
+                    'lainnya' => 'Lainnya',
+                ])
+                ->native(false)
+                ->helperText('Sumber utama penghasilan')
+                ->columnSpanFull(),
+
+            FileUpload::make('data_tambahan.dokumen_pendukung')
+                ->label('Dokumen Pendukung')
+                ->visible(fn (Get $get) => static::isVisible($get))
+                ->multiple()
+                ->image()
+                ->imageEditor()
+                ->disk('public')
+                ->directory('surat-keterangan/dokumen')
+                ->visibility('public')
+                ->maxSize(2048)
+                ->maxFiles(5)
+                ->hint('Opsional')
+                ->helperText('Upload slip gaji atau surat keterangan penghasilan dari tempat kerja. Maks 5 file @ 2MB')
+                ->columnSpanFull(),
         ];
     }
 

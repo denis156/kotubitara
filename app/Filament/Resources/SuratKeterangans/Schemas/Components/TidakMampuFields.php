@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Resources\SuratKeterangans\Schemas\Components;
 
 use App\Enums\JenisSuratKeterangan;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 
@@ -17,6 +18,17 @@ class TidakMampuFields
     public static function make(): array
     {
         return [
+            TextInput::make('data_ekonomi.pekerjaan')
+                ->label('Pekerjaan')
+                ->visible(fn (Get $get) => static::isVisible($get) && ! $get('penduduk_id'))
+                ->required(fn (Get $get) => static::isVisible($get) && ! $get('penduduk_id'))
+                ->maxLength(255)
+                ->validationMessages([
+                    'required' => 'Pekerjaan wajib diisi.',
+                ])
+                ->helperText('Pekerjaan otomatis diambil dari data penduduk jika memilih penduduk terdaftar')
+                ->columnSpanFull(),
+
             TextInput::make('data_ekonomi.penghasilan_perbulan')
                 ->label('Penghasilan Per Bulan')
                 ->visible(fn (Get $get) => static::isVisible($get))
@@ -42,22 +54,49 @@ class TidakMampuFields
                 ])
                 ->helperText('Jumlah anggota keluarga yang menjadi tanggungan'),
 
-            Textarea::make('data_ekonomi.kondisi_rumah')
+            Select::make('data_ekonomi.kondisi_rumah')
                 ->label('Kondisi Rumah')
                 ->visible(fn (Get $get) => static::isVisible($get))
                 ->hint('Opsional')
-                ->rows(3)
-                ->maxLength(500)
-                ->helperText('Deskripsi kondisi tempat tinggal')
+                ->options([
+                    'permanen' => 'Permanen (Beton/Bata)',
+                    'semi_permanen' => 'Semi Permanen',
+                    'kayu' => 'Kayu',
+                    'bambu' => 'Bambu',
+                    'darurat' => 'Darurat/Sangat Sederhana',
+                ])
+                ->native(false)
+                ->helperText('Kondisi bangunan tempat tinggal')
                 ->columnSpanFull(),
 
-            Textarea::make('data_ekonomi.alasan')
-                ->label('Alasan Permohonan')
+            Select::make('data_ekonomi.kepemilikan_rumah')
+                ->label('Status Kepemilikan Rumah')
                 ->visible(fn (Get $get) => static::isVisible($get))
                 ->hint('Opsional')
-                ->rows(3)
-                ->maxLength(500)
-                ->helperText('Alasan memerlukan surat keterangan tidak mampu')
+                ->options([
+                    'milik_sendiri' => 'Milik Sendiri',
+                    'milik_orangtua' => 'Milik Orang Tua',
+                    'menumpang' => 'Menumpang',
+                    'kontrak' => 'Kontrak/Sewa',
+                    'rumah_dinas' => 'Rumah Dinas',
+                ])
+                ->native(false)
+                ->helperText('Status kepemilikan tempat tinggal')
+                ->columnSpanFull(),
+
+            FileUpload::make('data_tambahan.dokumen_pendukung')
+                ->label('Dokumen Pendukung')
+                ->visible(fn (Get $get) => static::isVisible($get))
+                ->multiple()
+                ->image()
+                ->imageEditor()
+                ->disk('public')
+                ->directory('surat-keterangan/dokumen')
+                ->visibility('public')
+                ->maxSize(2048)
+                ->maxFiles(5)
+                ->hint('Opsional')
+                ->helperText('Upload KTP, KK, dan foto rumah sebagai bukti kondisi ekonomi. Maks 5 file @ 2MB')
                 ->columnSpanFull(),
         ];
     }

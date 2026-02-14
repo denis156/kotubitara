@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\SuratKeterangans\Schemas\Components;
 
 use App\Enums\JenisSuratKeterangan;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -32,11 +33,15 @@ class UsahaFields
             Select::make('data_usaha.jenis_usaha')
                 ->label('Jenis Usaha')
                 ->visible(fn (Get $get) => static::isVisible($get))
-                ->hint('Opsional')
+                ->required(fn (Get $get) => static::isVisible($get))
                 ->options([
-                    'warung_toko' => 'Warung/Toko',
+                    'warung_kelontong' => 'Warung Kelontong',
+                    'toko_sembako' => 'Toko Sembako',
                     'kuliner' => 'Kuliner (Makanan/Minuman)',
-                    'jasa' => 'Jasa',
+                    'bengkel' => 'Bengkel',
+                    'penjahit' => 'Penjahit/Konveksi',
+                    'salon_barbershop' => 'Salon/Barbershop',
+                    'jasa_service' => 'Jasa Service',
                     'pertanian' => 'Pertanian',
                     'peternakan' => 'Peternakan',
                     'kerajinan' => 'Kerajinan',
@@ -45,23 +50,29 @@ class UsahaFields
                 ])
                 ->native(false)
                 ->searchable()
+                ->validationMessages([
+                    'required' => 'Jenis usaha wajib dipilih.',
+                ])
                 ->columnSpanFull(),
 
             Textarea::make('data_usaha.alamat_usaha')
                 ->label('Alamat Usaha')
                 ->visible(fn (Get $get) => static::isVisible($get))
-                ->hint('Opsional')
+                ->required(fn (Get $get) => static::isVisible($get))
                 ->rows(2)
                 ->maxLength(500)
+                ->validationMessages([
+                    'required' => 'Alamat usaha wajib diisi.',
+                ])
                 ->columnSpanFull(),
 
-            TextInput::make('data_usaha.modal')
-                ->label('Modal Usaha')
+            TextInput::make('data_usaha.lama_usaha')
+                ->label('Lama Usaha')
                 ->visible(fn (Get $get) => static::isVisible($get))
                 ->hint('Opsional')
-                ->numeric()
-                ->prefix('Rp')
-                ->helperText('Modal awal usaha'),
+                ->maxLength(50)
+                ->placeholder('Contoh: 3 tahun, 6 bulan')
+                ->helperText('Sudah berapa lama menjalankan usaha ini'),
 
             TextInput::make('data_usaha.jumlah_karyawan')
                 ->label('Jumlah Karyawan')
@@ -74,6 +85,21 @@ class UsahaFields
                     'min' => 'Jumlah karyawan tidak boleh kurang dari 0.',
                 ])
                 ->helperText('Jumlah karyawan yang dipekerjakan'),
+
+            FileUpload::make('data_tambahan.dokumen_pendukung')
+                ->label('Dokumen Pendukung')
+                ->visible(fn (Get $get) => static::isVisible($get))
+                ->multiple()
+                ->image()
+                ->imageEditor()
+                ->disk('public')
+                ->directory('surat-keterangan/dokumen')
+                ->visibility('public')
+                ->maxSize(2048)
+                ->maxFiles(5)
+                ->hint('Opsional')
+                ->helperText('Upload foto tempat usaha dan NPWP (jika ada). Maks 5 file @ 2MB')
+                ->columnSpanFull(),
         ];
     }
 

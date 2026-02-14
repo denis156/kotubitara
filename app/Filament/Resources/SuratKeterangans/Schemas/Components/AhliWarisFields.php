@@ -6,6 +6,7 @@ namespace App\Filament\Resources\SuratKeterangans\Schemas\Components;
 
 use App\Enums\JenisSuratKeterangan;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -81,6 +82,21 @@ class AhliWarisFields
                 ->rows(3)
                 ->maxLength(500)
                 ->helperText('Deskripsi harta yang diwariskan')
+                ->columnSpanFull(),
+
+            FileUpload::make('data_tambahan.dokumen_pendukung')
+                ->label('Dokumen Pendukung')
+                ->visible(fn (Get $get) => static::isVisible($get))
+                ->multiple()
+                ->image()
+                ->imageEditor()
+                ->disk('public')
+                ->directory('surat-keterangan/dokumen')
+                ->visibility('public')
+                ->maxSize(2048)
+                ->maxFiles(5)
+                ->hint('Opsional')
+                ->helperText('Upload KK, akta kematian, dan sertifikat/bukti kepemilikan harta warisan. Maks 5 file @ 2MB')
                 ->columnSpanFull(),
         ];
     }
